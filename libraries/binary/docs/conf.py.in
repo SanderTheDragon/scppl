@@ -1,0 +1,36 @@
+# SPDX-FileCopyrightText: 2021 SanderTheDragon <sanderthedragon@zoho.com>
+#
+# SPDX-License-Identifier: CC-BY-SA-4.0
+
+project = 'scppl @PROJECT_NAME@'
+copyright = '2021, SanderTheDragon'
+author = 'SanderTheDragon'
+
+release = '@PROJECT_VERSION@'
+
+extensions = [
+    'breathe',
+    'exhale',
+    'sanderthedragon.codeblockbuttons'
+]
+
+primary_domain = 'cpp'
+highlight_language = 'cpp'
+
+html_theme = 'furo'
+
+breathe_projects = {
+   'scppl @PROJECT_NAME@': '@SD_DOXYGEN_DIR@/xml'
+}
+
+breathe_default_project = 'scppl @PROJECT_NAME@'
+breathe_default_members = ( 'members', 'undoc-members' )
+
+exhale_args = {
+   'containmentFolder':    './generated',
+   'rootFileName':         'index.rst',
+   'rootFileTitle':        'scppl @PROJECT_NAME@',
+   'doxygenStripFromPath': '..',
+   'createTreeView':       False,
+   'contentsDirectives':   False
+}

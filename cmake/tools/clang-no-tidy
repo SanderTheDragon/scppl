@@ -1,0 +1,13 @@
+# SPDX-FileCopyrightText: 2021 SanderTheDragon <sanderthedragon@zoho.com>
+#
+# SPDX-License-Identifier: CC0-1.0
+
+# Disable `clang-tidy` for all files except headers with "someextensionthatsprobablyneverusedforaheaderfile" as extension.
+
+Checks:              '-*,misc-definitions-in-headers'
+HeaderFilterRegex:   ''
+CheckOptions:
+  - key:             misc-definitions-in-headers.HeaderFileExtensions
+    value:           ';someextensionthatsprobablyneverusedforaheaderfile'
+  - key:             misc-definitions-in-headers.UseHeaderFileExtension
+    value:           'true'
