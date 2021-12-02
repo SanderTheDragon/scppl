@@ -63,10 +63,8 @@ public:
         auto packValue = [&]<typename T>(T value) -> void
         {
             auto raw = Binary::toBytes<T>(value);
-            std::ranges::copy_n(std::ranges::begin(raw), sizeof(T),
-                                position);
-
-            std::ranges::advance(position, sizeof(T));
+            position = std::ranges::copy_n(std::ranges::begin(raw), sizeof(T),
+                                           position).out;
         };
 
         (packValue.template operator()<Ts>(values), ...);
@@ -93,10 +91,8 @@ public:
         auto unpackValue = [&]<typename T>() -> T
         {
             std::array<Byte, sizeof(T)> value{};
-            std::ranges::copy_n(position, sizeof(T),
-                                std::ranges::begin(value));
-
-            std::ranges::advance(position, sizeof(T));
+            position = std::ranges::copy_n(position, sizeof(T),
+                                           std::ranges::begin(value)).in;
 
             return Binary::fromBytes<T>(std::move(value));
         };

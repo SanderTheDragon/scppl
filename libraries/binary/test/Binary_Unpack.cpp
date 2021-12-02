@@ -3,6 +3,8 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include <array>
+#include <cstddef>
+#include <tuple>
 #include <type_traits>
 #include <vector>
 
