@@ -119,7 +119,7 @@ public:
      */
     template<std::endian tEndian = std::endian::native, Packable T>
 #ifdef SCPPL_CONFING_BINARY_USE_PFR
-    requires(!std::is_class_v<T>)
+    requires(!std::is_class_v<T> || tEndian == std::endian::native)
 #endif
     static auto toBytes(T value)
         -> ByteArray<sizeof(T)>
@@ -145,7 +145,7 @@ public:
      * @return An array containing the binary data.
      */
     template<std::endian tEndian = std::endian::native, Packable T>
-    requires(std::is_class_v<T>)
+    requires(std::is_class_v<T> && tEndian != std::endian::native)
     static auto toBytes(T value)
         -> ByteArray<sizeof(T)>
     {
@@ -153,6 +153,8 @@ public:
         auto position = std::ranges::begin(raw);
         auto convertField = [&]<typename FieldT>(FieldT field) -> void
         {
+            static_assert(Packable<FieldT>, "`FieldT` is not `Packable`");
+
             auto fieldBytes = Binary::toBytes<tEndian, FieldT>(field);
             position = std::ranges::copy(std::ranges::begin(fieldBytes),
                                          std::ranges::end(fieldBytes),
@@ -177,7 +179,7 @@ public:
      */
     template<std::endian tEndian = std::endian::native, Unpackable T>
 #ifdef SCPPL_CONFING_BINARY_USE_PFR
-    requires(!std::is_class_v<T>)
+    requires(!std::is_class_v<T> || tEndian == std::endian::native)
 #endif
     static auto fromBytes(RangeOf<Byte> auto raw)
         -> T
@@ -203,7 +205,7 @@ public:
      * @return The value of struct `T`.
      */
     template<std::endian tEndian = std::endian::native, Unpackable T>
-    requires(std::is_class_v<T>)
+    requires(std::is_class_v<T> && tEndian != std::endian::native)
     static auto fromBytes(RangeOf<Byte> auto raw)
         -> T
     {
