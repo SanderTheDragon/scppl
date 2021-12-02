@@ -14,6 +14,16 @@
 
 #include "Data.hpp"
 
+// NOLINTBEGIN: Macros required here
+#define DATA_NAME(variable) variable ## Data
+#define TYPE_OF(variable)   std::remove_const_t<decltype(variable)>
+
+#define ASSERT_UNPACKED_VALUES_EQUAL(...) \
+    assertValuesEqual( \
+        scppl::Binary::unpack<FOR_EACH(TYPE_OF, __VA_ARGS__)>( \
+            combineArray(FOR_EACH(DATA_NAME, __VA_ARGS__))), {__VA_ARGS__})
+// NOLINTEND
+
 template<std::size_t I = 0, typename... Ts>
 requires(I == sizeof...(Ts))
 void assertValuesEqual(std::tuple<Ts...> /* values */,
@@ -31,16 +41,6 @@ void assertValuesEqual(std::tuple<Ts...> values,
 
     assertValuesEqual<I + 1>(values, expected);
 }
-
-// NOLINTBEGIN: Macros required here
-#define DATA_NAME(variable) variable ## Data
-#define TYPE_OF(variable)   std::remove_const_t<decltype(variable)>
-
-#define ASSERT_UNPACKED_VALUES_EQUAL(...) \
-    assertValuesEqual( \
-        scppl::Binary::unpack<FOR_EACH(TYPE_OF, __VA_ARGS__)>( \
-            combineArray(FOR_EACH(DATA_NAME, __VA_ARGS__))), {__VA_ARGS__})
-// NOLINTEND
 
 // NOLINTNEXTLINE: External
 TEST(BinaryUnpack, OneType)

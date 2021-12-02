@@ -12,6 +12,14 @@
 
 #include "Data.hpp"
 
+// NOLINTBEGIN: Macros required here
+#define DATA_NAME(variable) variable ## Data
+
+#define ASSERT_PACKED_DATA_EQUAL(...) \
+    assertDataEqual(scppl::Binary::pack(__VA_ARGS__), \
+                    FOR_EACH(DATA_NAME, __VA_ARGS__))
+// NOLINTEND
+
 template<std::size_t N>
 void assertDataEqual(std::array<char, N> data,
                      std::array<char, N> expected)
@@ -27,14 +35,6 @@ void assertDataEqual(std::array<char, N> data,
 {
     assertDataEqual(data, combineArray(expected...));
 }
-
-// NOLINTBEGIN: Macros required here
-#define DATA_NAME(variable) variable ## Data
-
-#define ASSERT_PACKED_DATA_EQUAL(...) \
-    assertDataEqual(scppl::Binary::pack(__VA_ARGS__), \
-                    FOR_EACH(DATA_NAME, __VA_ARGS__))
-// NOLINTEND
 
 // NOLINTNEXTLINE: External
 TEST(BinaryPack, OneType)
