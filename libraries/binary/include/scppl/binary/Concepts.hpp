@@ -36,7 +36,8 @@ concept Packable = std::is_object_v<T> && !std::ranges::range<T>;
  * @tparam T  The type to test.
  */
 template<typename T>
-concept Unpackable = std::is_object_v<T> && !std::ranges::range<T>;
+concept Unpackable = std::is_object_v<T> && !std::is_const_v<T> &&
+                     !std::ranges::range<T>;
 
 }
 

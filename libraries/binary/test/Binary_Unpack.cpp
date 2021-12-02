@@ -10,9 +10,17 @@
 
 #include <gtest/gtest.h>
 
+#ifdef SCPPL_CONFING_BINARY_USE_PFR
+#include <boost/pfr/core.hpp>
+#endif
+
 #include "scppl/binary/Binary.hpp"
 
 #include "Data.hpp"
+
+#ifndef SCPPL_CONFING_BINARY_USE_PFR
+#define SCPPL_CONFING_BINARY_USE_PFR 0
+#endif
 
 // NOLINTBEGIN: Macros required here
 #define DATA_NAME_LE(variable) variable ## DataLE
@@ -88,14 +96,22 @@ TEST(BinaryUnpack, LittleEndianFourType)
 // NOLINTNEXTLINE: External
 TEST(BinaryUnpack, LittleEndianTwoTypeStruct)
 {
-    ASSERT_UNPACKED_VALUES_EQUAL_LE(AB);
-    ASSERT_UNPACKED_VALUES_EQUAL_LE(CD);
+    if (std::endian::native == std::endian::little ||
+        SCPPL_CONFING_BINARY_USE_PFR)
+    {
+        ASSERT_UNPACKED_VALUES_EQUAL_LE(AB);
+        ASSERT_UNPACKED_VALUES_EQUAL_LE(CD);
+    }
 }
 
 // NOLINTNEXTLINE: External
 TEST(BinaryUnpack, LittleEndianTwoTypeStructStruct)
 {
-    ASSERT_UNPACKED_VALUES_EQUAL_LE(AB_CD);
+    if (std::endian::native == std::endian::little ||
+        SCPPL_CONFING_BINARY_USE_PFR)
+    {
+        ASSERT_UNPACKED_VALUES_EQUAL_LE(AB_CD);
+    }
 }
 
 // NOLINTNEXTLINE: External
@@ -137,12 +153,20 @@ TEST(BinaryUnpack, BigEndianFourType)
 // NOLINTNEXTLINE: External
 TEST(BinaryUnpack, BigEndianTwoTypeStruct)
 {
-    ASSERT_UNPACKED_VALUES_EQUAL_BE(AB);
-    ASSERT_UNPACKED_VALUES_EQUAL_BE(CD);
+    if (std::endian::native == std::endian::big ||
+        SCPPL_CONFING_BINARY_USE_PFR)
+    {
+        ASSERT_UNPACKED_VALUES_EQUAL_BE(AB);
+        ASSERT_UNPACKED_VALUES_EQUAL_BE(CD);
+    }
 }
 
 // NOLINTNEXTLINE: External
 TEST(BinaryUnpack, BigEndianTwoTypeStructStruct)
 {
-    ASSERT_UNPACKED_VALUES_EQUAL_BE(AB_CD);
+    if (std::endian::native == std::endian::big ||
+        SCPPL_CONFING_BINARY_USE_PFR)
+    {
+        ASSERT_UNPACKED_VALUES_EQUAL_BE(AB_CD);
+    }
 }

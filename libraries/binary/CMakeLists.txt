@@ -20,6 +20,16 @@ target_include_directories(${PROJECT_NAME}
                            INTERFACE ${${PROJECT_NAME}_INCLUDE_DIR})
 
 
+include(DefineOption)
+
+find_file(PFR "boost/pfr.hpp")
+define_option(SCPPL_CONFING_BINARY_USE_PFR "PFR struct iterating"
+              DEFAULT ${PFR}
+              TARGET ${PROJECT_NAME}
+              INHERITANCE INTERFACE
+              REQUIRES PFR)
+
+
 if(SCPPL_BUILD_TESTS)
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/test")
 endif()
