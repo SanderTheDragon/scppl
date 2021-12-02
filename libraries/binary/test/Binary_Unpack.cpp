@@ -2,28 +2,89 @@
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
-#include <cstdint>
+#include <array>
+#include <type_traits>
 #include <vector>
 
 #include <gtest/gtest.h>
 
 #include "scppl/binary/Binary.hpp"
 
-// NOLINTNEXTLINE: External
-TEST(BinaryUnpack, SingleType)
-{
-    std::vector<char> data = { 0x23, 0x01 };
-    auto [ a ] = scppl::Binary::unpack<uint16_t>(data);
+#include "Data.hpp"
 
-    ASSERT_EQ(a, 0x0123);
+template<std::size_t I = 0, typename... Ts>
+requires(I == sizeof...(Ts))
+void assertValuesEqual(std::tuple<Ts...> /* values */,
+                       std::tuple<Ts...> /* expected */)
+{
+
+}
+
+template<std::size_t I = 0, typename... Ts>
+requires(I < sizeof...(Ts))
+void assertValuesEqual(std::tuple<Ts...> values,
+                       std::tuple<Ts...> expected)
+{
+    ASSERT_EQ(std::get<I>(values), std::get<I>(expected));
+
+    assertValuesEqual<I + 1>(values, expected);
+}
+
+// NOLINTBEGIN: Macros required here
+#define DATA_NAME(variable) variable ## Data
+#define TYPE_OF(variable)   std::remove_const_t<decltype(variable)>
+
+#define ASSERT_UNPACKED_VALUES_EQUAL(...) \
+    assertValuesEqual( \
+        scppl::Binary::unpack<FOR_EACH(TYPE_OF, __VA_ARGS__)>( \
+            combineArray(FOR_EACH(DATA_NAME, __VA_ARGS__))), {__VA_ARGS__})
+// NOLINTEND
+
+// NOLINTNEXTLINE: External
+TEST(BinaryUnpack, OneType)
+{
+    ASSERT_UNPACKED_VALUES_EQUAL(A);
+    ASSERT_UNPACKED_VALUES_EQUAL(B);
+    ASSERT_UNPACKED_VALUES_EQUAL(C);
+    ASSERT_UNPACKED_VALUES_EQUAL(D);
 }
 
 // NOLINTNEXTLINE: External
-TEST(BinaryUnpack, DualType)
+TEST(BinaryUnpack, TwoType)
 {
-    std::vector<char> data = { 0x23, 0x01, 0x67, 0x45 };
-    auto [ a, b ] = scppl::Binary::unpack<uint16_t, uint16_t>(data);
+    ASSERT_UNPACKED_VALUES_EQUAL(A, B);
+    ASSERT_UNPACKED_VALUES_EQUAL(B, C);
+    ASSERT_UNPACKED_VALUES_EQUAL(C, D);
+    ASSERT_UNPACKED_VALUES_EQUAL(D, A);
+}
 
-    ASSERT_EQ(a, 0x0123);
-    ASSERT_EQ(b, 0x4567);
+// NOLINTNEXTLINE: External
+TEST(BinaryUnpack, ThreeType)
+{
+    ASSERT_UNPACKED_VALUES_EQUAL(A, B, C);
+    ASSERT_UNPACKED_VALUES_EQUAL(B, C, D);
+    ASSERT_UNPACKED_VALUES_EQUAL(C, D, A);
+    ASSERT_UNPACKED_VALUES_EQUAL(D, A, B);
+}
+
+// NOLINTNEXTLINE: External
+TEST(BinaryUnpack, FourType)
+{
+    ASSERT_UNPACKED_VALUES_EQUAL(A, B, C, D);
+    ASSERT_UNPACKED_VALUES_EQUAL(B, C, D, A);
+    ASSERT_UNPACKED_VALUES_EQUAL(C, D, A, B);
+    ASSERT_UNPACKED_VALUES_EQUAL(D, A, B, C);
+}
+
+// NOLINTNEXTLINE: External
+TEST(BinaryUnpack, TwoTypeStruct)
+{
+    ASSERT_UNPACKED_VALUES_EQUAL(AB);
+    ASSERT_UNPACKED_VALUES_EQUAL(CD);
+}
+
+// NOLINTNEXTLINE: External
+TEST(BinaryUnpack, TwoTypeStructStruct)
+{
+    ASSERT_UNPACKED_VALUES_EQUAL(AB_CD);
 }

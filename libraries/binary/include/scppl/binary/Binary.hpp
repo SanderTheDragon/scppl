@@ -59,7 +59,7 @@ public:
         -> ByteArray<lengthOf<Ts...>()>
     {
         ByteArray<lengthOf<Ts...>()> data{};
-        auto position = std::ranges::begin(data);
+        auto position = std::ranges::begin(data); // NOLINT
         auto packValue = [&]<typename T>(T value) -> void
         {
             auto raw = Binary::toBytes<T>(value);
@@ -71,7 +71,7 @@ public:
 
         (packValue.template operator()<Ts>(values), ...);
 
-        return std::move(data);
+        return data;
     }
 
     /**
@@ -120,7 +120,7 @@ public:
         ByteArray<sizeof(T)> raw{};
         std::memcpy(std::ranges::data(raw), &value, sizeof(T));
 
-        return std::move(raw);
+        return raw;
     }
 
     /**
