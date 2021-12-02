@@ -27,16 +27,25 @@
 #define FOR_EACH_AGAIN() FOR_EACH_HELPER
 // NOLINTEND
 
+template<std::size_t N>
+using ByteArray = std::array<char, N>;
+
 constexpr uint8_t  A = 0x01;
 constexpr uint16_t B = 0x01'23;
 constexpr uint32_t C = 0x01'23'45'67;
 constexpr uint64_t D = 0x01'23'45'67'89'AB'CD'EF;
 
-constexpr std::array<char, sizeof(A)> AData{'\x01'};
-constexpr std::array<char, sizeof(B)> BData{'\x23', '\x01'};
-constexpr std::array<char, sizeof(C)> CData{'\x67', '\x45', '\x23', '\x01'};
-constexpr std::array<char, sizeof(D)> DData{'\xEF', '\xCD', '\xAB', '\x89',
-                                            '\x67', '\x45', '\x23', '\x01'};
+constexpr ByteArray<sizeof(A)> ADataLE{'\x01'};
+constexpr ByteArray<sizeof(B)> BDataLE{'\x23', '\x01'};
+constexpr ByteArray<sizeof(C)> CDataLE{'\x67', '\x45', '\x23', '\x01'};
+constexpr ByteArray<sizeof(D)> DDataLE{'\xEF', '\xCD', '\xAB', '\x89',
+                                       '\x67', '\x45', '\x23', '\x01'};
+
+constexpr ByteArray<sizeof(A)> ADataBE{'\x01'};
+constexpr ByteArray<sizeof(B)> BDataBE{'\x01', '\x23'};
+constexpr ByteArray<sizeof(C)> CDataBE{'\x01', '\x23', '\x45', '\x67'};
+constexpr ByteArray<sizeof(D)> DDataBE{'\x01', '\x23', '\x45', '\x67',
+                                       '\x89', '\xAB', '\xCD', '\xEF'};
 
 #pragma pack(push, 1)
 struct AB_t
@@ -77,12 +86,12 @@ inline auto operator==(AB_CD_t lhs, AB_CD_t rhs)
 #pragma pack(pop)
 
 template<std::size_t... Ns>
-constexpr auto combineArray(std::array<char, Ns>... arrays)
-    -> std::array<char, (Ns + ...)>
+constexpr auto combineArrays(ByteArray<Ns>... arrays)
+    -> ByteArray<(Ns + ...)>
 {
-    std::array<char, (Ns + ...)> result{};
+    ByteArray<(Ns + ...)> result{};
     auto position = std::ranges::begin(result); // NOLINT
-    auto append = [&]<std::size_t N>(std::array<char, N> array) -> void
+    auto append = [&]<std::size_t N>(ByteArray<N> array) -> void
     {
         position =
             std::ranges::copy_n(std::ranges::begin(array), N, position).out;
@@ -97,9 +106,14 @@ constexpr AB_t AB{};
 constexpr CD_t CD{};
 constexpr AB_CD_t AB_CD{};
 
-constexpr std::array<char, sizeof(AB)> ABData = combineArray(AData, BData);
-constexpr std::array<char, sizeof(CD)> CDData = combineArray(CData, DData);
-constexpr std::array<char, sizeof(AB_CD)> AB_CDData = combineArray(ABData,
-                                                                   CDData);
+constexpr ByteArray<sizeof(AB)> ABDataLE = combineArrays(ADataLE, BDataLE);
+constexpr ByteArray<sizeof(CD)> CDDataLE = combineArrays(CDataLE, DDataLE);
+constexpr ByteArray<sizeof(AB_CD)> AB_CDDataLE = combineArrays(ABDataLE,
+                                                               CDDataLE);
+
+constexpr ByteArray<sizeof(AB)> ABDataBE = combineArrays(ADataBE, BDataBE);
+constexpr ByteArray<sizeof(CD)> CDDataBE = combineArrays(CDataBE, DDataBE);
+constexpr ByteArray<sizeof(AB_CD)> AB_CDDataBE = combineArrays(ABDataBE,
+                                                               CDDataBE);
 
 #endif

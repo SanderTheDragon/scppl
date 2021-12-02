@@ -6,6 +6,7 @@
 #define SCPPL_BINARY_BINARY_HPP_
 
 #include <algorithm>
+#include <bit>
 #include <cstring>
 #include <ranges>
 #include <tuple>
@@ -48,13 +49,14 @@ public:
      *
      * @sa scppl::Binary::toBytes()
      *
-     * @tparam Ts  The types to pack.
+     * @tparam tEndian  The endian of the data.
+     * @tparam Ts       The types to pack.
      *
      * @param values  The values of types `Ts...` to pack.
      *
      * @return An array containing raw data.
      */
-    template<Packable... Ts>
+    template<std::endian tEndian = std::endian::native, Packable... Ts>
     static auto pack(Ts... values)
         -> ByteArray<lengthOf<Ts...>()>
     {
@@ -62,7 +64,7 @@ public:
         auto position = std::ranges::begin(data); // NOLINT
         auto packValue = [&]<typename T>(T value) -> void
         {
-            auto raw = Binary::toBytes<T>(value);
+            auto raw = Binary::toBytes<tEndian, T>(value);
             position = std::ranges::copy_n(std::ranges::begin(raw), sizeof(T),
                                            position).out;
         };
@@ -77,13 +79,14 @@ public:
      *
      * @sa scppl::Binary::fromBytes()
      *
-     * @tparam Ts  The types of values to unpack.
+     * @tparam tEndian  The endian of the data.
+     * @tparam Ts       The types of values to unpack.
      *
      * @param data  A range containing the raw data to unpack from.
      *
      * @return A tuple containing the unpacked values.
      */
-    template<Unpackable... Ts>
+    template<std::endian tEndian = std::endian::native, Unpackable... Ts>
     static auto unpack(RangeOf<Byte> auto data)
         -> std::tuple<Ts...>
     {
@@ -94,7 +97,7 @@ public:
             position = std::ranges::copy_n(position, sizeof(T),
                                            std::ranges::begin(value)).in;
 
-            return Binary::fromBytes<T>(std::move(value));
+            return Binary::fromBytes<tEndian, T>(std::move(value));
         };
 
         return std::tuple<Ts...>{unpackValue.template operator()<Ts>()...};
@@ -103,18 +106,22 @@ public:
     /**
      * @brief Converts a single value of type `T` into raw bytes.
      *
-     * @tparam T  The type of the value to convert.
+     * @tparam tEndian  The endian of the data.
+     * @tparam T        The type of the value to convert.
      *
      * @param value  The value of type `T` to convert.
      *
      * @return An array containing the binary data.
      */
-    template<Packable T>
+    template<std::endian tEndian = std::endian::native, Packable T>
     static auto toBytes(T value)
         -> ByteArray<sizeof(T)>
     {
         ByteArray<sizeof(T)> raw{};
         std::memcpy(std::ranges::data(raw), &value, sizeof(T));
+
+        if constexpr(std::is_scalar_v<T> && tEndian != std::endian::native)
+            std::ranges::reverse(raw);
 
         return raw;
     }
@@ -122,16 +129,20 @@ public:
     /**
      * @brief Converts raw bytes into a single value of type `T`.
      *
-     * @tparam T  The type of the value to convert.
+     * @tparam tEndian  The endian of the data.
+     * @tparam T        The type of the value to convert.
      *
      * @param raw  The binary data to convert into type `T`.
      *
      * @return The value of type `T`.
      */
-    template<Unpackable T>
+    template<std::endian tEndian = std::endian::native, Unpackable T>
     static auto fromBytes(RangeOf<Byte> auto raw)
         -> T
     {
+        if constexpr(std::is_scalar_v<T> && tEndian != std::endian::native)
+            std::ranges::reverse(raw);
+
         T value{};
         std::memcpy(&value, std::ranges::data(raw), sizeof(T));
 

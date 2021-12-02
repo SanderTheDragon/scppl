@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include <array>
+#include <bit>
 #include <cstddef>
 #include <memory>
 
@@ -13,11 +14,17 @@
 #include "Data.hpp"
 
 // NOLINTBEGIN: Macros required here
-#define DATA_NAME(variable) variable ## Data
+#define DATA_NAME_LE(variable) variable ## DataLE
+#define DATA_NAME_BE(variable) variable ## DataBE
 
-#define ASSERT_PACKED_DATA_EQUAL(...) \
-    assertDataEqual(scppl::Binary::pack(__VA_ARGS__), \
-                    FOR_EACH(DATA_NAME, __VA_ARGS__))
+#define ASSERT_PACKED_DATA_EQUAL(endian, prefix, ...) \
+    assertDataEqual(scppl::Binary::pack<endian>(__VA_ARGS__), \
+                    FOR_EACH(DATA_NAME_ ## prefix, __VA_ARGS__))
+
+#define ASSERT_PACKED_DATA_EQUAL_LE(...) \
+    ASSERT_PACKED_DATA_EQUAL(std::endian::little, LE, __VA_ARGS__)
+#define ASSERT_PACKED_DATA_EQUAL_BE(...) \
+    ASSERT_PACKED_DATA_EQUAL(std::endian::big, BE, __VA_ARGS__)
 // NOLINTEND
 
 template<std::size_t N>
@@ -33,54 +40,103 @@ requires((Ns + ...) == N)
 void assertDataEqual(std::array<char, N> data,
                      std::array<char, Ns>... expected)
 {
-    assertDataEqual(data, combineArray(expected...));
+    assertDataEqual(data, combineArrays(expected...));
 }
 
 // NOLINTNEXTLINE: External
-TEST(BinaryPack, OneType)
+TEST(BinaryPack, LittleEndianOneType)
 {
-    ASSERT_PACKED_DATA_EQUAL(A);
-    ASSERT_PACKED_DATA_EQUAL(B);
-    ASSERT_PACKED_DATA_EQUAL(C);
-    ASSERT_PACKED_DATA_EQUAL(D);
+    ASSERT_PACKED_DATA_EQUAL_LE(A);
+    ASSERT_PACKED_DATA_EQUAL_LE(B);
+    ASSERT_PACKED_DATA_EQUAL_LE(C);
+    ASSERT_PACKED_DATA_EQUAL_LE(D);
 }
 
 // NOLINTNEXTLINE: External
-TEST(BinaryPack, TwoType)
+TEST(BinaryPack, LittleEndianTwoType)
 {
-    ASSERT_PACKED_DATA_EQUAL(A, B);
-    ASSERT_PACKED_DATA_EQUAL(B, C);
-    ASSERT_PACKED_DATA_EQUAL(C, D);
-    ASSERT_PACKED_DATA_EQUAL(D, A);
+    ASSERT_PACKED_DATA_EQUAL_LE(A, B);
+    ASSERT_PACKED_DATA_EQUAL_LE(B, C);
+    ASSERT_PACKED_DATA_EQUAL_LE(C, D);
+    ASSERT_PACKED_DATA_EQUAL_LE(D, A);
 }
 
 // NOLINTNEXTLINE: External
-TEST(BinaryPack, ThreeType)
+TEST(BinaryPack, LittleEndianThreeType)
 {
-    ASSERT_PACKED_DATA_EQUAL(A, B, C);
-    ASSERT_PACKED_DATA_EQUAL(B, C, D);
-    ASSERT_PACKED_DATA_EQUAL(C, D, A);
-    ASSERT_PACKED_DATA_EQUAL(D, A, B);
+    ASSERT_PACKED_DATA_EQUAL_LE(A, B, C);
+    ASSERT_PACKED_DATA_EQUAL_LE(B, C, D);
+    ASSERT_PACKED_DATA_EQUAL_LE(C, D, A);
+    ASSERT_PACKED_DATA_EQUAL_LE(D, A, B);
 }
 
 // NOLINTNEXTLINE: External
-TEST(BinaryPack, FourType)
+TEST(BinaryPack, LittleEndianFourType)
 {
-    ASSERT_PACKED_DATA_EQUAL(A, B, C, D);
-    ASSERT_PACKED_DATA_EQUAL(B, C, D, A);
-    ASSERT_PACKED_DATA_EQUAL(C, D, A, B);
-    ASSERT_PACKED_DATA_EQUAL(D, A, B, C);
+    ASSERT_PACKED_DATA_EQUAL_LE(A, B, C, D);
+    ASSERT_PACKED_DATA_EQUAL_LE(B, C, D, A);
+    ASSERT_PACKED_DATA_EQUAL_LE(C, D, A, B);
+    ASSERT_PACKED_DATA_EQUAL_LE(D, A, B, C);
 }
 
 // NOLINTNEXTLINE: External
-TEST(BinaryPack, TwoTypeStruct)
+TEST(BinaryPack, LittleEndianTwoTypeStruct)
 {
-    ASSERT_PACKED_DATA_EQUAL(AB);
-    ASSERT_PACKED_DATA_EQUAL(CD);
+    ASSERT_PACKED_DATA_EQUAL_LE(AB);
+    ASSERT_PACKED_DATA_EQUAL_LE(CD);
 }
 
 // NOLINTNEXTLINE: External
-TEST(BinaryPack, TwoTypeStructStruct)
+TEST(BinaryPack, LittleEndianTwoTypeStructStruct)
 {
-    ASSERT_PACKED_DATA_EQUAL(AB_CD);
+    ASSERT_PACKED_DATA_EQUAL_LE(AB_CD);
+}
+
+// NOLINTNEXTLINE: External
+TEST(BinaryPack, BigEndianOneType)
+{
+    ASSERT_PACKED_DATA_EQUAL_BE(A);
+    ASSERT_PACKED_DATA_EQUAL_BE(B);
+    ASSERT_PACKED_DATA_EQUAL_BE(C);
+    ASSERT_PACKED_DATA_EQUAL_BE(D);
+}
+
+// NOLINTNEXTLINE: External
+TEST(BinaryPack, BigEndianTwoType)
+{
+    ASSERT_PACKED_DATA_EQUAL_BE(A, B);
+    ASSERT_PACKED_DATA_EQUAL_BE(B, C);
+    ASSERT_PACKED_DATA_EQUAL_BE(C, D);
+    ASSERT_PACKED_DATA_EQUAL_BE(D, A);
+}
+
+// NOLINTNEXTLINE: External
+TEST(BinaryPack, BigEndianThreeType)
+{
+    ASSERT_PACKED_DATA_EQUAL_BE(A, B, C);
+    ASSERT_PACKED_DATA_EQUAL_BE(B, C, D);
+    ASSERT_PACKED_DATA_EQUAL_BE(C, D, A);
+    ASSERT_PACKED_DATA_EQUAL_BE(D, A, B);
+}
+
+// NOLINTNEXTLINE: External
+TEST(BinaryPack, BigEndianFourType)
+{
+    ASSERT_PACKED_DATA_EQUAL_BE(A, B, C, D);
+    ASSERT_PACKED_DATA_EQUAL_BE(B, C, D, A);
+    ASSERT_PACKED_DATA_EQUAL_BE(C, D, A, B);
+    ASSERT_PACKED_DATA_EQUAL_BE(D, A, B, C);
+}
+
+// NOLINTNEXTLINE: External
+TEST(BinaryPack, BigEndianTwoTypeStruct)
+{
+    ASSERT_PACKED_DATA_EQUAL_BE(AB);
+    ASSERT_PACKED_DATA_EQUAL_BE(CD);
+}
+
+// NOLINTNEXTLINE: External
+TEST(BinaryPack, BigEndianTwoTypeStructStruct)
+{
+    ASSERT_PACKED_DATA_EQUAL_BE(AB_CD);
 }
