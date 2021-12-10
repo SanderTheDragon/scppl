@@ -25,9 +25,9 @@
 #define DATA_NAME_LE(variable) variable ## DataLE
 #define DATA_NAME_BE(variable) variable ## DataBE
 
-#define ASSERT_PACKED_DATA_EQUAL(endian, prefix, ...) \
+#define ASSERT_PACKED_DATA_EQUAL(endian, suffix, ...) \
     assertDataEqual(scppl::Binary::pack<endian>(__VA_ARGS__), \
-                    FOR_EACH(DATA_NAME_ ## prefix, __VA_ARGS__))
+                    FOR_EACH(DATA_NAME_ ## suffix, __VA_ARGS__))
 
 #define ASSERT_PACKED_DATA_EQUAL_LE(...) \
     ASSERT_PACKED_DATA_EQUAL(std::endian::little, LE, __VA_ARGS__)
@@ -88,6 +88,15 @@ TEST(BinaryPack, LittleEndianFourType)
 }
 
 // NOLINTNEXTLINE: External
+TEST(BinaryPack, LittleEndianArray)
+{
+    ASSERT_PACKED_DATA_EQUAL_LE(AArray);
+    ASSERT_PACKED_DATA_EQUAL_LE(BArray);
+    ASSERT_PACKED_DATA_EQUAL_LE(CArray);
+    ASSERT_PACKED_DATA_EQUAL_LE(DArray);
+}
+
+// NOLINTNEXTLINE: External
 TEST(BinaryPack, LittleEndianTwoTypeStruct)
 {
     if (std::endian::native == std::endian::little ||
@@ -145,10 +154,19 @@ TEST(BinaryPack, BigEndianFourType)
 }
 
 // NOLINTNEXTLINE: External
+TEST(BinaryPack, BigEndianArray)
+{
+    ASSERT_PACKED_DATA_EQUAL_BE(AArray);
+    ASSERT_PACKED_DATA_EQUAL_BE(BArray);
+    ASSERT_PACKED_DATA_EQUAL_BE(CArray);
+    ASSERT_PACKED_DATA_EQUAL_BE(DArray);
+}
+
+// NOLINTNEXTLINE: External
 TEST(BinaryPack, BigEndianTwoTypeStruct)
 {
-    if (std::endian::native == std::endian::big ||
-        SCPPL_CONFING_BINARY_USE_PFR)
+    if constexpr(std::endian::native == std::endian::big ||
+                 SCPPL_CONFING_BINARY_USE_PFR)
     {
         ASSERT_PACKED_DATA_EQUAL_BE(AB);
         ASSERT_PACKED_DATA_EQUAL_BE(CD);
@@ -158,8 +176,8 @@ TEST(BinaryPack, BigEndianTwoTypeStruct)
 // NOLINTNEXTLINE: External
 TEST(BinaryPack, BigEndianTwoTypeStructStruct)
 {
-    if (std::endian::native == std::endian::big ||
-        SCPPL_CONFING_BINARY_USE_PFR)
+    if constexpr(std::endian::native == std::endian::big ||
+                 SCPPL_CONFING_BINARY_USE_PFR)
     {
         ASSERT_PACKED_DATA_EQUAL_BE(AB_CD);
     }

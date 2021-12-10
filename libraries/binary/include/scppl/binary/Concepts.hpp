@@ -22,22 +22,33 @@ concept RangeOf = std::ranges::range<Range>
                   && std::convertible_to<RangeT, T>
                   && (sizeof(RangeT) == sizeof(T));
 
-/**
- * @brief `T` must be an object type and not a range.
- *
- * @tparam T  The type to test.
- */
 template<typename T>
-concept Packable = std::is_object_v<T> && !std::ranges::range<T>;
+struct PackableTrait : std::false_type {};
 
-/**
- * @brief `T` must be an object type and not a range.
- *
- * @tparam T  The type to test.
- */
 template<typename T>
-concept Unpackable = std::is_object_v<T> && !std::is_const_v<T> &&
-                     !std::ranges::range<T>;
+requires(std::is_object_v<T> && !std::ranges::range<T>)
+struct PackableTrait<T> : std::true_type {};
+
+template<typename T>
+requires(std::ranges::sized_range<T>)
+struct PackableTrait<T> : PackableTrait<std::ranges::range_value_t<T>> {};
+
+template<typename T>
+concept Packable = PackableTrait<T>::value;
+
+template<typename T>
+struct UnpackableTrait : std::false_type {};
+
+template<typename T>
+requires(std::is_object_v<T> && !std::is_const_v<T> && !std::ranges::range<T>)
+struct UnpackableTrait<T> : std::true_type {};
+
+template<typename T>
+requires(std::ranges::sized_range<T> && !std::is_const_v<T>)
+struct UnpackableTrait<T> : UnpackableTrait<std::ranges::range_value_t<T>> {};
+
+template<typename T>
+concept Unpackable = UnpackableTrait<T>::value;
 
 }
 

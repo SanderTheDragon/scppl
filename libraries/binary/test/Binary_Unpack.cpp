@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
+#include <array>
 #include <bit>
 #include <cstddef>
 #include <tuple>
@@ -27,10 +28,10 @@
 #define DATA_NAME_BE(variable) variable ## DataBE
 #define TYPE_OF(variable) std::remove_const_t<decltype(variable)>
 
-#define ASSERT_UNPACKED_VALUES_EQUAL(endian, prefix, ...) \
+#define ASSERT_UNPACKED_VALUES_EQUAL(endian, suffix, ...) \
     assertValuesEqual( \
         scppl::Binary::unpack<endian, FOR_EACH(TYPE_OF, __VA_ARGS__)>( \
-            combineArrays(FOR_EACH(DATA_NAME_ ## prefix, __VA_ARGS__))), \
+            combineArrays(FOR_EACH(DATA_NAME_ ## suffix, __VA_ARGS__))), \
                           {__VA_ARGS__})
 
 #define ASSERT_UNPACKED_VALUES_EQUAL_LE(...) \
@@ -44,7 +45,7 @@ requires(I == sizeof...(Ts))
 void assertValuesEqual(std::tuple<Ts...> /* values */,
                        std::tuple<Ts...> /* expected */)
 {
-
+    //
 }
 
 template<std::size_t I = 0, typename... Ts>
@@ -91,6 +92,15 @@ TEST(BinaryUnpack, LittleEndianFourType)
     ASSERT_UNPACKED_VALUES_EQUAL_LE(B, C, D, A);
     ASSERT_UNPACKED_VALUES_EQUAL_LE(C, D, A, B);
     ASSERT_UNPACKED_VALUES_EQUAL_LE(D, A, B, C);
+}
+
+// NOLINTNEXTLINE: External
+TEST(BinaryUnpack, LittleEndianArray)
+{
+    ASSERT_UNPACKED_VALUES_EQUAL_LE(AArray);
+    ASSERT_UNPACKED_VALUES_EQUAL_LE(BArray);
+    ASSERT_UNPACKED_VALUES_EQUAL_LE(CArray);
+    ASSERT_UNPACKED_VALUES_EQUAL_LE(DArray);
 }
 
 // NOLINTNEXTLINE: External
@@ -151,10 +161,19 @@ TEST(BinaryUnpack, BigEndianFourType)
 }
 
 // NOLINTNEXTLINE: External
+TEST(BinaryUnpack, BigEndianArray)
+{
+    ASSERT_UNPACKED_VALUES_EQUAL_BE(AArray);
+    ASSERT_UNPACKED_VALUES_EQUAL_BE(BArray);
+    ASSERT_UNPACKED_VALUES_EQUAL_BE(CArray);
+    ASSERT_UNPACKED_VALUES_EQUAL_BE(DArray);
+}
+
+// NOLINTNEXTLINE: External
 TEST(BinaryUnpack, BigEndianTwoTypeStruct)
 {
-    if (std::endian::native == std::endian::big ||
-        SCPPL_CONFING_BINARY_USE_PFR)
+    if constexpr(std::endian::native == std::endian::big ||
+                 SCPPL_CONFING_BINARY_USE_PFR)
     {
         ASSERT_UNPACKED_VALUES_EQUAL_BE(AB);
         ASSERT_UNPACKED_VALUES_EQUAL_BE(CD);
@@ -164,8 +183,8 @@ TEST(BinaryUnpack, BigEndianTwoTypeStruct)
 // NOLINTNEXTLINE: External
 TEST(BinaryUnpack, BigEndianTwoTypeStructStruct)
 {
-    if (std::endian::native == std::endian::big ||
-        SCPPL_CONFING_BINARY_USE_PFR)
+    if constexpr(std::endian::native == std::endian::big ||
+                 SCPPL_CONFING_BINARY_USE_PFR)
     {
         ASSERT_UNPACKED_VALUES_EQUAL_BE(AB_CD);
     }

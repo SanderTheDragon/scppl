@@ -47,6 +47,7 @@ constexpr auto combineArrays(ByteArray<Ns>... arrays)
     return result;
 }
 
+// Single type
 constexpr uint8_t  A = 0x01;
 constexpr uint16_t B = 0x01'23;
 constexpr uint32_t C = 0x01'23'45'67;
@@ -64,6 +65,36 @@ constexpr ByteArray<sizeof(C)> CDataBE{'\x01', '\x23', '\x45', '\x67'};
 constexpr ByteArray<sizeof(D)> DDataBE{'\x01', '\x23', '\x45', '\x67',
                                        '\x89', '\xAB', '\xCD', '\xEF'};
 
+// Array
+constexpr std::array<std::remove_cvref_t<decltype(A)>, 1> AArray{A};
+constexpr std::array<std::remove_cvref_t<decltype(B)>, 2> BArray{B, B};
+constexpr std::array<std::remove_cvref_t<decltype(C)>, 3> CArray{C, C, C};
+constexpr std::array<std::remove_cvref_t<decltype(D)>, 4> DArray{D, D, D, D};
+
+constexpr ByteArray<sizeof(AArray)> AArrayDataLE = combineArrays(ADataLE);
+constexpr ByteArray<sizeof(BArray)> BArrayDataLE = combineArrays(BDataLE,
+                                                                 BDataLE);
+constexpr ByteArray<sizeof(CArray)> CArrayDataLE = combineArrays(CDataLE,
+                                                                 CDataLE,
+                                                                 CDataLE);
+constexpr ByteArray<sizeof(DArray)> DArrayDataLE = combineArrays(DDataLE,
+                                                                 DDataLE,
+                                                                 DDataLE,
+                                                                 DDataLE);
+
+constexpr ByteArray<sizeof(AArray)> AArrayDataBE = combineArrays(ADataBE);
+constexpr ByteArray<sizeof(BArray)> BArrayDataBE = combineArrays(BDataBE,
+                                                                 BDataBE);
+constexpr ByteArray<sizeof(CArray)> CArrayDataBE = combineArrays(CDataBE,
+                                                                 CDataBE,
+                                                                 CDataBE);
+constexpr ByteArray<sizeof(DArray)> DArrayDataBE = combineArrays(DDataBE,
+                                                                 DDataBE,
+                                                                 DDataBE,
+                                                                 DDataBE);
+
+
+// Struct of single type
 #pragma pack(push, 1)
 struct AB_t
 {
@@ -99,6 +130,7 @@ constexpr ByteArray<sizeof(CD)> CDDataLE = combineArrays(CDataLE, DDataLE);
 constexpr ByteArray<sizeof(AB)> ABDataBE = combineArrays(ADataBE, BDataBE);
 constexpr ByteArray<sizeof(CD)> CDDataBE = combineArrays(CDataBE, DDataBE);
 
+// Struct of struct of single type
 #pragma pack(push, 1)
 struct AB_CD_t
 {

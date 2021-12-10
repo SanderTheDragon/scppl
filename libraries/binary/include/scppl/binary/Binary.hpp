@@ -119,7 +119,10 @@ public:
      */
     template<std::endian tEndian = std::endian::native, Packable T>
 #ifdef SCPPL_CONFING_BINARY_USE_PFR
-    requires(!std::is_class_v<T> || tEndian == std::endian::native)
+    requires(!std::ranges::range<T> &&
+             (!std::is_class_v<T> || tEndian == std::endian::native))
+#else
+    requires(!std::ranges::range<T>)
 #endif
     static auto toBytes(T value)
         -> ByteArray<sizeof(T)>
@@ -129,6 +132,38 @@ public:
 
         if constexpr(std::is_scalar_v<T> && tEndian != std::endian::native)
             std::ranges::reverse(raw);
+
+        return raw;
+    }
+
+    /**
+     * @brief Converts a range of type `T` into raw bytes.
+     *
+     * @tparam tEndian  The endian of the data.
+     * @tparam T        The type of range to convert.
+     *
+     * @param value  The range of type `T` to convert.
+     *
+     * @return An array containing the binary data.
+     */
+    template<std::endian tEndian = std::endian::native, Packable T>
+    requires(std::ranges::sized_range<T>)
+    static auto toBytes(T range)
+        -> ByteArray<sizeof(T)>
+    {
+        using RangeT = std::ranges::range_value_t<T>;
+
+        ByteArray<sizeof(T)> raw{};
+        auto position = std::ranges::begin(raw);
+        for (std::size_t i = 0; i < std::ranges::size(range); ++i)
+        {
+            ByteArray<sizeof(RangeT)> itemBytes =
+                Binary::toBytes<tEndian, RangeT>(range.at(i));
+
+            position = std::ranges::copy(std::ranges::begin(itemBytes),
+                                         std::ranges::end(itemBytes),
+                                         position).out;
+        }
 
         return raw;
     }
@@ -145,7 +180,8 @@ public:
      * @return An array containing the binary data.
      */
     template<std::endian tEndian = std::endian::native, Packable T>
-    requires(std::is_class_v<T> && tEndian != std::endian::native)
+    requires(!std::ranges::range<T> &&
+             (std::is_class_v<T> && tEndian != std::endian::native))
     static auto toBytes(T value)
         -> ByteArray<sizeof(T)>
     {
@@ -179,7 +215,10 @@ public:
      */
     template<std::endian tEndian = std::endian::native, Unpackable T>
 #ifdef SCPPL_CONFING_BINARY_USE_PFR
-    requires(!std::is_class_v<T> || tEndian == std::endian::native)
+    requires(!std::ranges::range<T> &&
+             (!std::is_class_v<T> || tEndian == std::endian::native))
+#else
+    requires(!std::ranges::range<T>)
 #endif
     static auto fromBytes(RangeOf<Byte> auto raw)
         -> T
@@ -191,6 +230,37 @@ public:
         std::memcpy(&value, std::ranges::data(raw), sizeof(T));
 
         return value;
+    }
+
+    /**
+     * @brief Converts raw bytes into a range of type `T`.
+     *
+     * @tparam tEndian  The endian of the data.
+     * @tparam T        The type of the range to convert.
+     *
+     * @param raw  The binary data to convert into the range.
+     *
+     * @return The range of type `T`.
+     */
+    template<std::endian tEndian = std::endian::native, Unpackable T>
+    requires(std::ranges::sized_range<T>)
+    static auto fromBytes(RangeOf<Byte> auto raw)
+        -> T
+    {
+        using RangeT = std::ranges::range_value_t<T>;
+
+        T range{};
+        auto position = std::ranges::begin(raw);
+        for (std::size_t i = 0; i < std::ranges::size(range); ++i)
+        {
+            ByteArray<sizeof(RangeT)> itemBytes{};
+            position = std::ranges::copy_n(position, sizeof(RangeT),
+                                           std::ranges::begin(itemBytes)).in;
+
+            range.at(i) = Binary::fromBytes<tEndian, RangeT>(itemBytes);
+        }
+
+        return range;
     }
 
 #ifdef SCPPL_CONFING_BINARY_USE_PFR
@@ -205,7 +275,8 @@ public:
      * @return The value of struct `T`.
      */
     template<std::endian tEndian = std::endian::native, Unpackable T>
-    requires(std::is_class_v<T> && tEndian != std::endian::native)
+    requires(!std::ranges::range<T> &&
+             (std::is_class_v<T> && tEndian != std::endian::native))
     static auto fromBytes(RangeOf<Byte> auto raw)
         -> T
     {
