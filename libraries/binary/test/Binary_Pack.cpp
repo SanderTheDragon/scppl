@@ -16,6 +16,8 @@
 #include "scppl/binary/Binary.hpp"
 
 #include "Data.hpp"
+#include "Utility.hpp"
+#include "Values.hpp"
 
 #ifndef SCPPL_CONFING_BINARY_USE_PFR
 #define SCPPL_CONFING_BINARY_USE_PFR 0
@@ -108,16 +110,6 @@ TEST(BinaryPack, LittleEndianStruct)
 }
 
 // NOLINTNEXTLINE: External
-TEST(BinaryPack, LittleEndianArrayStruct)
-{
-    if constexpr(std::endian::native == std::endian::little ||
-                 SCPPL_CONFING_BINARY_USE_PFR)
-    {
-        ASSERT_PACKED_DATA_EQUAL_LE(ABCDArray);
-    }
-}
-
-// NOLINTNEXTLINE: External
 TEST(BinaryPack, LittleEndianStructStruct)
 {
     if constexpr(std::endian::native == std::endian::little ||
@@ -134,6 +126,26 @@ TEST(BinaryPack, LittleEndianStructArray)
                  SCPPL_CONFING_BINARY_USE_PFR)
     {
         ASSERT_PACKED_DATA_EQUAL_LE(AB_CDArray);
+    }
+}
+
+// NOLINTNEXTLINE: External
+TEST(BinaryPack, LittleEndianArrayStruct)
+{
+    if constexpr(std::endian::native == std::endian::little ||
+                 SCPPL_CONFING_BINARY_USE_PFR)
+    {
+        ASSERT_PACKED_DATA_EQUAL_LE(ABCDArray);
+    }
+}
+
+// NOLINTNEXTLINE: External
+TEST(BinaryPack, LittleEndianArrayStructArray)
+{
+    if constexpr(std::endian::native == std::endian::little ||
+                 SCPPL_CONFING_BINARY_USE_PFR)
+    {
+        ASSERT_PACKED_DATA_EQUAL_LE(ABCDArrayArray);
     }
 }
 
@@ -194,16 +206,6 @@ TEST(BinaryPack, BigEndianStruct)
 }
 
 // NOLINTNEXTLINE: External
-TEST(BinaryPack, BigEndianArrayStruct)
-{
-    if constexpr(std::endian::native == std::endian::big ||
-                 SCPPL_CONFING_BINARY_USE_PFR)
-    {
-        ASSERT_PACKED_DATA_EQUAL_BE(ABCDArray);
-    }
-}
-
-// NOLINTNEXTLINE: External
 TEST(BinaryPack, BigEndianStructStruct)
 {
     if constexpr(std::endian::native == std::endian::big ||
@@ -220,5 +222,25 @@ TEST(BinaryPack, BigEndianStructArray)
                  SCPPL_CONFING_BINARY_USE_PFR)
     {
         ASSERT_PACKED_DATA_EQUAL_BE(AB_CDArray);
+    }
+}
+
+// NOLINTNEXTLINE: External
+TEST(BinaryPack, BigEndianArrayStruct)
+{
+    if constexpr(std::endian::native == std::endian::big ||
+                 SCPPL_CONFING_BINARY_USE_PFR)
+    {
+        ASSERT_PACKED_DATA_EQUAL_BE(ABCDArray);
+    }
+}
+
+// NOLINTNEXTLINE: External
+TEST(BinaryPack, BigEndianArrayStructArray)
+{
+    if constexpr(std::endian::native == std::endian::big ||
+                 SCPPL_CONFING_BINARY_USE_PFR)
+    {
+        ASSERT_PACKED_DATA_EQUAL_BE(ABCDArrayArray);
     }
 }
