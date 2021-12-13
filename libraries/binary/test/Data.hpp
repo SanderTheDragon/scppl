@@ -93,8 +93,7 @@ constexpr ByteArray<sizeof(DArray)> DArrayDataBE = combineArrays(DDataBE,
                                                                  DDataBE,
                                                                  DDataBE);
 
-
-// Struct of single type
+// Struct of two types
 #pragma pack(push, 1)
 struct AB_t
 {
@@ -129,6 +128,31 @@ constexpr ByteArray<sizeof(CD)> CDDataLE = combineArrays(CDataLE, DDataLE);
 
 constexpr ByteArray<sizeof(AB)> ABDataBE = combineArrays(ADataBE, BDataBE);
 constexpr ByteArray<sizeof(CD)> CDDataBE = combineArrays(CDataBE, DDataBE);
+
+// Struct of arrays
+#pragma pack(push, 1)
+struct ABCDArray_t
+{
+    std::remove_cvref_t<decltype(AArray)> a{AArray};
+    std::remove_cvref_t<decltype(BArray)> b{BArray};
+    std::remove_cvref_t<decltype(CArray)> c{CArray};
+    std::remove_cvref_t<decltype(DArray)> d{DArray};
+};
+
+inline auto operator==(ABCDArray_t lhs, ABCDArray_t rhs)
+    -> bool
+{
+    return (lhs.a == rhs.a && lhs.b == rhs.b &&
+            lhs.c == rhs.c && lhs.d == rhs.d);
+}
+#pragma pack(pop)
+
+constexpr ABCDArray_t ABCDArray{};
+
+constexpr ByteArray<sizeof(ABCDArray)> ABCDArrayDataLE =
+    combineArrays(AArrayDataLE, BArrayDataLE, CArrayDataLE, DArrayDataLE);
+constexpr ByteArray<sizeof(ABCDArray)> ABCDArrayDataBE =
+    combineArrays(AArrayDataBE, BArrayDataBE, CArrayDataBE, DArrayDataBE);
 
 // Struct of struct of single type
 #pragma pack(push, 1)

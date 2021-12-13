@@ -104,10 +104,10 @@ TEST(BinaryUnpack, LittleEndianArray)
 }
 
 // NOLINTNEXTLINE: External
-TEST(BinaryUnpack, LittleEndianTwoTypeStruct)
+TEST(BinaryUnpack, LittleEndianStruct)
 {
-    if (std::endian::native == std::endian::little ||
-        SCPPL_CONFING_BINARY_USE_PFR)
+    if constexpr(std::endian::native == std::endian::little ||
+                 SCPPL_CONFING_BINARY_USE_PFR)
     {
         ASSERT_UNPACKED_VALUES_EQUAL_LE(AB);
         ASSERT_UNPACKED_VALUES_EQUAL_LE(CD);
@@ -115,10 +115,20 @@ TEST(BinaryUnpack, LittleEndianTwoTypeStruct)
 }
 
 // NOLINTNEXTLINE: External
-TEST(BinaryUnpack, LittleEndianTwoTypeStructStruct)
+TEST(BinaryUnpack, LittleEndianArrayStruct)
 {
-    if (std::endian::native == std::endian::little ||
-        SCPPL_CONFING_BINARY_USE_PFR)
+    if constexpr(std::endian::native == std::endian::little ||
+                 SCPPL_CONFING_BINARY_USE_PFR)
+    {
+        ASSERT_UNPACKED_VALUES_EQUAL_LE(ABCDArray);
+    }
+}
+
+// NOLINTNEXTLINE: External
+TEST(BinaryUnpack, LittleEndianStructStruct)
+{
+    if constexpr(std::endian::native == std::endian::little ||
+                 SCPPL_CONFING_BINARY_USE_PFR)
     {
         ASSERT_UNPACKED_VALUES_EQUAL_LE(AB_CD);
     }
@@ -170,7 +180,7 @@ TEST(BinaryUnpack, BigEndianArray)
 }
 
 // NOLINTNEXTLINE: External
-TEST(BinaryUnpack, BigEndianTwoTypeStruct)
+TEST(BinaryUnpack, BigEndianStruct)
 {
     if constexpr(std::endian::native == std::endian::big ||
                  SCPPL_CONFING_BINARY_USE_PFR)
@@ -181,7 +191,17 @@ TEST(BinaryUnpack, BigEndianTwoTypeStruct)
 }
 
 // NOLINTNEXTLINE: External
-TEST(BinaryUnpack, BigEndianTwoTypeStructStruct)
+TEST(BinaryUnpack, BigEndianArrayStruct)
+{
+    if constexpr(std::endian::native == std::endian::big ||
+                 SCPPL_CONFING_BINARY_USE_PFR)
+    {
+        ASSERT_UNPACKED_VALUES_EQUAL_BE(ABCDArray);
+    }
+}
+
+// NOLINTNEXTLINE: External
+TEST(BinaryUnpack, BigEndianStructStruct)
 {
     if constexpr(std::endian::native == std::endian::big ||
                  SCPPL_CONFING_BINARY_USE_PFR)
