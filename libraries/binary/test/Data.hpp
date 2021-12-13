@@ -154,7 +154,7 @@ constexpr ByteArray<sizeof(ABCDArray)> ABCDArrayDataLE =
 constexpr ByteArray<sizeof(ABCDArray)> ABCDArrayDataBE =
     combineArrays(AArrayDataBE, BArrayDataBE, CArrayDataBE, DArrayDataBE);
 
-// Struct of struct of single type
+// Struct of structs
 #pragma pack(push, 1)
 struct AB_CD_t
 {
@@ -176,5 +176,14 @@ constexpr ByteArray<sizeof(AB_CD)> AB_CDDataLE = combineArrays(ABDataLE,
 
 constexpr ByteArray<sizeof(AB_CD)> AB_CDDataBE = combineArrays(ABDataBE,
                                                                CDDataBE);
+
+// Array of structs
+constexpr std::array<std::remove_cvref_t<decltype(AB_CD)>, 2> AB_CDArray{AB_CD,
+                                                                         AB_CD};
+
+constexpr ByteArray<sizeof(AB_CDArray)> AB_CDArrayDataLE =
+    combineArrays(AB_CDDataLE, AB_CDDataLE);
+constexpr ByteArray<sizeof(AB_CDArray)> AB_CDArrayDataBE =
+    combineArrays(AB_CDDataBE, AB_CDDataBE);
 
 #endif

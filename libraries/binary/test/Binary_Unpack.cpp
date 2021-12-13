@@ -135,6 +135,16 @@ TEST(BinaryUnpack, LittleEndianStructStruct)
 }
 
 // NOLINTNEXTLINE: External
+TEST(BinaryUnpack, LittleEndianStructArray)
+{
+    if constexpr(std::endian::native == std::endian::little ||
+                 SCPPL_CONFING_BINARY_USE_PFR)
+    {
+        ASSERT_UNPACKED_VALUES_EQUAL_LE(AB_CDArray);
+    }
+}
+
+// NOLINTNEXTLINE: External
 TEST(BinaryUnpack, BigEndianOneType)
 {
     ASSERT_UNPACKED_VALUES_EQUAL_BE(A);
@@ -207,5 +217,15 @@ TEST(BinaryUnpack, BigEndianStructStruct)
                  SCPPL_CONFING_BINARY_USE_PFR)
     {
         ASSERT_UNPACKED_VALUES_EQUAL_BE(AB_CD);
+    }
+}
+
+// NOLINTNEXTLINE: External
+TEST(BinaryUnpack, BigEndianStructArray)
+{
+    if constexpr(std::endian::native == std::endian::big ||
+                 SCPPL_CONFING_BINARY_USE_PFR)
+    {
+        ASSERT_UNPACKED_VALUES_EQUAL_BE(AB_CDArray);
     }
 }
