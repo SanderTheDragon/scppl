@@ -10,7 +10,6 @@ release = '@PROJECT_VERSION@'
 
 extensions = [
     'breathe',
-    'exhale',
     'sanderthedragon.codeblockbuttons'
 ]
 
@@ -19,6 +18,7 @@ highlight_language = 'cpp'
 
 html_theme = 'furo'
 
+# `breathe` settings
 breathe_projects = {
    'scppl @PROJECT_NAME@': '@SD_DOXYGEN_DIR@/xml'
 }
@@ -26,11 +26,7 @@ breathe_projects = {
 breathe_default_project = 'scppl @PROJECT_NAME@'
 breathe_default_members = ( 'members', 'undoc-members' )
 
-exhale_args = {
-   'containmentFolder':    './generated',
-   'rootFileName':         'index.rst',
-   'rootFileTitle':        'scppl @PROJECT_NAME@',
-   'doxygenStripFromPath': '..',
-   'createTreeView':       False,
-   'contentsDirectives':   False
-}
+breathe_show_include = False
+
+# `codeblockbuttons` settings
+cb_default = 'cbd-none'

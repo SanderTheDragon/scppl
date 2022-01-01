@@ -2,14 +2,10 @@
 ..
 .. SPDX-License-Identifier: CC-BY-SA-4.0
 
-############
-scppl Binary
-############
+Classes
+=======
 
 .. toctree::
    :maxdepth: 2
 
-   classes/index.rst
-   functions.rst
-   concepts.rst
-   traits.rst
+   binary.rst

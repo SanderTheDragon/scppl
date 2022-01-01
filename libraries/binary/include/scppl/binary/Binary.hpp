@@ -16,45 +16,30 @@
 #endif
 
 #include "scppl/binary/Concepts.hpp"
+#include "scppl/binary/Utility.hpp"
 
 namespace scppl {
-
-/**
- * @brief Calculate the total length of a parameter pack.
- *
- * @details Calculates the total length of parameter pack `Ts` by calculating
- *          the sum of each `sizeof(T)` for `T` in `Ts...` using a fold
- *          expression.
- *
- * @tparam Ts  The types to get the length of.
- *
- * @return The total length of the parameter pack.
- */
-template<typename... Ts>
-constexpr auto lengthOf()
-    -> std::size_t
-{
-    return (sizeof(Ts) + ...);
-}
 
 /**
  * @brief Pack and unpack binary data.
  */
 class Binary
 {
+public:
+    /// The type to use as a byte.
     using Byte = char;
 
+    /// A simple alias for an array of `Byte`s.
     template<std::size_t N>
     using ByteArray = std::array<Byte, N>;
 
-public:
     /**
      * @brief Pack `values` of types `Ts...` into raw data.
      *
      * @sa scppl::Binary::toBytes()
      *
-     * @tparam tEndian  The endian of the data.
-     * @tparam Ts       The types to pack.
+     * @tparam tEndian  The endian of the data. [`std::endian::native`]
+     * @tparam Ts       The types to pack, must be `Packable`.
      *
      * @param values  The values of types `Ts...` to pack.
      *
@@ -83,15 +68,15 @@ public:
      *
      * @sa scppl::Binary::fromBytes()
      *
-     * @tparam tEndian  The endian of the data.
-     * @tparam Ts       The types of values to unpack.
+     * @tparam tEndian  The endian of the data. [`std::endian::native`]
+     * @tparam Ts       The types of values to unpack, must be `Unpackable`.
      *
      * @param data  A range containing the raw data to unpack from.
      *
      * @return A tuple containing the unpacked values.
      */
     template<std::endian tEndian = std::endian::native, Unpackable... Ts>
-    static auto unpack(RangeOf<Byte> auto data)
+    static auto unpack(RangeOfEqualSizedType<Byte> auto data)
         -> std::tuple<Ts...>
     {
         auto position = std::ranges::begin(data);
@@ -110,8 +95,8 @@ public:
     /**
      * @brief Converts a single value of type `T` into raw bytes.
      *
-     * @tparam tEndian  The endian of the data.
-     * @tparam T        The type of the value to convert.
+     * @tparam tEndian  The endian of the data. [`std::endian::native`]
+     * @tparam T        The type of the value to convert, must be `Packable`.
      *
      * @param value  The value of type `T` to convert.
      *
@@ -139,10 +124,10 @@ public:
     /**
      * @brief Converts a range of type `T` into raw bytes.
      *
-     * @tparam tEndian  The endian of the data.
-     * @tparam T        The type of range to convert.
+     * @tparam tEndian  The endian of the data. [`std::endian::native`]
+     * @tparam T        The type of range to convert, must be `Packable`.
      *
-     * @param value  The range of type `T` to convert.
+     * @param range  The range of type `T` to convert.
      *
      * @return An array containing the binary data.
      */
@@ -155,10 +140,10 @@ public:
 
         ByteArray<sizeof(T)> raw{};
         auto position = std::ranges::begin(raw);
-        for (std::size_t i = 0; i < std::ranges::size(range); ++i)
+        for (RangeT const& item : range)
         {
             ByteArray<sizeof(RangeT)> itemBytes =
-                Binary::toBytes<tEndian, RangeT>(range.at(i));
+                Binary::toBytes<tEndian, RangeT>(item);
 
             position = std::ranges::copy(std::ranges::begin(itemBytes),
                                          std::ranges::end(itemBytes),
@@ -172,8 +157,8 @@ public:
     /**
      * @brief Converts all fields of struct `T` into raw bytes.
      *
-     * @tparam tEndian  The endian of the data.
-     * @tparam T        The type of the value to convert.
+     * @tparam tEndian  The endian of the data. [`std::endian::native`]
+     * @tparam T        The type of the value to convert, must be `Packable`.
      *
      * @param value  The value of struct `T` to convert.
      *
@@ -206,8 +191,8 @@ public:
     /**
      * @brief Converts raw bytes into a single value of type `T`.
      *
-     * @tparam tEndian  The endian of the data.
-     * @tparam T        The type of the value to convert.
+     * @tparam tEndian  The endian of the data. [`std::endian::native`]
+     * @tparam T        The type of the value to convert, must be `Unpackable`.
      *
      * @param raw  The binary data to convert into type `T`.
      *
@@ -220,7 +205,7 @@ public:
 #else
     requires(!std::ranges::range<T>)
 #endif
-    static auto fromBytes(RangeOf<Byte> auto raw)
+    static auto fromBytes(RangeOfEqualSizedType<Byte> auto raw)
         -> T
     {
         if constexpr(std::is_scalar_v<T> && tEndian != std::endian::native)
@@ -235,8 +220,8 @@ public:
     /**
      * @brief Converts raw bytes into a range of type `T`.
      *
-     * @tparam tEndian  The endian of the data.
-     * @tparam T        The type of the range to convert.
+     * @tparam tEndian  The endian of the data. [`std::endian::native`]
+     * @tparam T        The type of the range to convert, must be `Unpackable`.
      *
      * @param raw  The binary data to convert into the range.
      *
@@ -244,20 +229,20 @@ public:
      */
     template<std::endian tEndian = std::endian::native, Unpackable T>
     requires(std::ranges::sized_range<T>)
-    static auto fromBytes(RangeOf<Byte> auto raw)
+    static auto fromBytes(RangeOfEqualSizedType<Byte> auto raw)
         -> T
     {
         using RangeT = std::ranges::range_value_t<T>;
 
         T range{};
         auto position = std::ranges::begin(raw);
-        for (std::size_t i = 0; i < std::ranges::size(range); ++i)
+        for (RangeT& item : range)
         {
             ByteArray<sizeof(RangeT)> itemBytes{};
             position = std::ranges::copy_n(position, sizeof(RangeT),
                                            std::ranges::begin(itemBytes)).in;
 
-            range.at(i) = Binary::fromBytes<tEndian, RangeT>(itemBytes);
+            item = Binary::fromBytes<tEndian, RangeT>(itemBytes);
         }
 
         return range;
@@ -267,8 +252,8 @@ public:
     /**
      * @brief Converts raw bytes into a struct of type `T`.
      *
-     * @tparam tEndian  The endian of the data.
-     * @tparam T        The type of the value to convert.
+     * @tparam tEndian  The endian of the data. [`std::endian::native`]
+     * @tparam T        The type of the value to convert, must be `Unpackable`.
      *
      * @param raw  The binary data to convert into struct `T`.
      *
@@ -277,7 +262,7 @@ public:
     template<std::endian tEndian = std::endian::native, Unpackable T>
     requires(!std::ranges::range<T> &&
              (std::is_class_v<T> && tEndian != std::endian::native))
-    static auto fromBytes(RangeOf<Byte> auto raw)
+    static auto fromBytes(RangeOfEqualSizedType<Byte> auto raw)
         -> T
     {
         auto position = std::ranges::begin(raw);
@@ -293,7 +278,6 @@ public:
         };
 
         T value{};
-
         boost::pfr::for_each_field(value, convertField);
 
         return value;
