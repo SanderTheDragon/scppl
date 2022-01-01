@@ -93,6 +93,23 @@ public:
     }
 
     /**
+     * @brief Unpack raw bytes into values of types `Ts...`.
+     *
+     * @sa scppl::Binary::fromBytes()
+     *
+     * @tparam tEndian  The endian of the data. [`std::endian::native`]
+     * @tparam Ts       The types of values to unpack, must be `Unpackable`.
+     *
+     * @param data    A range containing the raw data to unpack from.
+     * @param values  References to the values to unpack into.
+     */
+    template<std::endian tEndian = std::endian::native, Unpackable... Ts>
+    static void unpack(RangeOf<Byte> auto data, Ts&... values)
+    {
+        std::tie(values...) = Binary::unpack<tEndian, Ts...>(data);
+    }
+
+    /**
      * @brief Converts a single value of type `T` into raw bytes.
      *
      * @tparam tEndian  The endian of the data. [`std::endian::native`]
