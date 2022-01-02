@@ -28,7 +28,7 @@
 #define DATA_NAME_BE(variable) variable ## DataBE
 
 #define ASSERT_PACKED_DATA_EQUAL(endian, suffix, ...) \
-    assertDataEqual(scppl::Binary::pack<endian>(__VA_ARGS__), \
+    assertDataEqual(scppl::Binary<endian>::pack(__VA_ARGS__), \
                     FOR_EACH(DATA_NAME_ ## suffix, __VA_ARGS__))
 
 #define ASSERT_PACKED_DATA_EQUAL_LE(...) \

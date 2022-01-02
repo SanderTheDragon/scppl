@@ -33,7 +33,7 @@
 
 #define ASSERT_UNPACKED_VALUES_EQUAL(endian, suffix, ...) \
     assertValuesEqual( \
-        scppl::Binary::unpack<endian, FOR_EACH(TYPE_OF, __VA_ARGS__)>( \
+        scppl::Binary<endian>::unpack<FOR_EACH(TYPE_OF, __VA_ARGS__)>( \
             combineArrays(FOR_EACH(DATA_NAME_ ## suffix, __VA_ARGS__))), \
                           {__VA_ARGS__})
 
