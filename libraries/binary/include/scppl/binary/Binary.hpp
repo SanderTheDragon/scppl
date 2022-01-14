@@ -45,7 +45,7 @@ public:
      *
      * @sa scppl::Binary::toBytes()
      *
-     * @tparam Ts       The types to pack, must be `Packable`.
+     * @tparam Ts  The types to pack, must be `Packable`.
      *
      * @param values  The values of types `Ts...` to pack.
      *
@@ -74,7 +74,7 @@ public:
      *
      * @sa scppl::Binary::fromBytes()
      *
-     * @tparam Ts       The types of values to unpack, must be `Unpackable`.
+     * @tparam Ts  The types of values to unpack, must be `Unpackable`.
      *
      * @param data  A range containing the raw data to unpack from.
      *
@@ -100,7 +100,7 @@ public:
     /**
      * @brief Unpack raw bytes into values of types `Ts...`.
      *
-     * @tparam Ts       The types of values to unpack, must be `Unpackable`.
+     * @tparam Ts  The types of values to unpack, must be `Unpackable`.
      *
      * @param data    A range containing the raw data to unpack from.
      * @param values  References to the values to unpack into.
@@ -114,7 +114,7 @@ public:
     /**
      * @brief Converts a single value of type `T` into raw bytes.
      *
-     * @tparam T        The type of the value to convert, must be `Packable`.
+     * @tparam T  The type of the value to convert, must be `Packable`.
      *
      * @param value  The value of type `T` to convert.
      *
@@ -142,7 +142,7 @@ public:
     /**
      * @brief Converts a range of type `T` into raw bytes.
      *
-     * @tparam T        The type of range to convert, must be `Packable`.
+     * @tparam T  The type of range to convert, must be `Packable`.
      *
      * @param range  The range of type `T` to convert.
      *
@@ -173,7 +173,7 @@ public:
     /**
      * @brief Converts all fields of struct `T` into raw bytes.
      *
-     * @tparam T        The type of the value to convert, must be `Packable`.
+     * @tparam T  The type of the value to convert, must be `Packable`.
      *
      * @param value  The value of struct `T` to convert.
      *
@@ -206,7 +206,7 @@ public:
     /**
      * @brief Converts raw bytes into a single value of type `T`.
      *
-     * @tparam T        The type of the value to convert, must be `Unpackable`.
+     * @tparam T  The type of the value to convert, must be `Unpackable`.
      *
      * @param raw  The binary data to convert into type `T`.
      *
@@ -234,7 +234,7 @@ public:
     /**
      * @brief Converts raw bytes into a range of type `T`.
      *
-     * @tparam T        The type of the range to convert, must be `Unpackable`.
+     * @tparam T  The type of the range to convert, must be `Unpackable`.
      *
      * @param raw  The binary data to convert into the range.
      *
@@ -265,7 +265,7 @@ public:
     /**
      * @brief Converts raw bytes into a struct of type `T`.
      *
-     * @tparam T        The type of the value to convert, must be `Unpackable`.
+     * @tparam T  The type of the value to convert, must be `Unpackable`.
      *
      * @param raw  The binary data to convert into struct `T`.
      *
