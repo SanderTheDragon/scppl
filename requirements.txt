@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: CC0-1.0
 
-Sphinx==4.3.2
-furo==2021.11.23
-breathe==4.31.0
+Sphinx==4.4.0
+furo==2022.2.14.1
+breathe==4.33.1
 sanderthedragon-sphinxext==1.0.0
