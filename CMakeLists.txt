@@ -43,6 +43,13 @@ if(SCPPL_BUILD_TESTS)
 endif()
 
 
+if(SCPPL_BUILD_DOCS)
+    include(SphinxDoc)
+
+    sphinx_doc("${CMAKE_CURRENT_SOURCE_DIR}/docs")
+endif()
+
+
 configure_file("${CMAKE_SOURCE_DIR}/cmake/tools/clang-no-tidy"
                "${CMAKE_BINARY_DIR}/.clang-tidy"
                COPYONLY)

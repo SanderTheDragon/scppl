@@ -1,0 +1,48 @@
+# SPDX-FileCopyrightText: 2021-2022 SanderTheDragon <sanderthedragon@zoho.com>
+#
+# SPDX-License-Identifier: CC0-1.0
+
+image: registry.gitlab.com/sanderthedragon/scppl:latest
+
+stages:
+  - build
+  - test
+  - deploy
+
+build:
+  stage: build
+  script:
+    - mkdir $CI_PROJECT_DIR/build
+    - cd $CI_PROJECT_DIR/build
+    - cmake .. -DSCPPL_LIBRARY_BINARY=ON -DSCPPL_TOOL_CLANG_TIDY=OFF -DSCPPL_TOOL_IWYU=OFF -DSCPPL_BUILD_DOCS=ON -DSCPPL_BUILD_TESTS=ON
+    - make
+  artifacts:
+    paths:
+      - "$CI_PROJECT_DIR/build"
+
+unit-test:
+  stage: test
+  dependencies:
+    - "build"
+  script:
+    - cd $CI_PROJECT_DIR/build
+    - ctest --output-junit $CI_PROJECT_DIR/report.xml
+  artifacts:
+    reports:
+      junit: "report.xml"
+
+pages:
+  stage: deploy
+  dependencies:
+    - "build"
+  before_script:
+    - pip install -r $CI_PROJECT_DIR/requirements.txt
+  script:
+    - cd $CI_PROJECT_DIR/build
+    - make Documentation BinaryDocumentation
+    - cp -R documentation/public $CI_PROJECT_DIR
+  artifacts:
+    paths:
+      - "public"
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH

@@ -4,8 +4,8 @@
 
 macro(compiler_tool CT_VAR CT_CMAKE_VAR)
     cmake_parse_arguments(CT
-                          "DEFAULT"
-                          "DEFAULT_EXE;NAME;PREFIX"
+                          ""
+                          "DEFAULT;DEFAULT_EXE;NAME;PREFIX"
                           "DEFAULT_ARGS;EXTRA_CMAKE_VARS"
                           ${ARGN})
 

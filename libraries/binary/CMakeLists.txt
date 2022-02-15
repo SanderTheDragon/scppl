@@ -51,6 +51,7 @@ endif()
 if(SCPPL_BUILD_DOCS)
     include(SphinxDoc)
 
-    sphinx_doc(${PROJECT_NAME} "${CMAKE_CURRENT_SOURCE_DIR}/docs"
+    sphinx_doc("${CMAKE_CURRENT_SOURCE_DIR}/docs"
+               TARGET ${PROJECT_NAME}
                DOXYGEN_INPUT "${${PROJECT_NAME}_INCLUDE_DIR}")
 endif()
