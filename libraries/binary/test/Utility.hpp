@@ -12,6 +12,8 @@
 
 #include <gtest/gtest.h>
 
+#include "Types.hpp"
+
 // NOLINTBEGIN: Macros required here
 #define PARENTHESES ()
 
@@ -26,9 +28,6 @@
     __VA_OPT__(, FOR_EACH_AGAIN PARENTHESES (macro, __VA_ARGS__))
 #define FOR_EACH_AGAIN() FOR_EACH_HELPER
 // NOLINTEND
-
-template<std::size_t N>
-using ByteArray = std::array<char, N>;
 
 template<std::size_t... Ns>
 constexpr auto combineArrays(ByteArray<Ns>... arrays)

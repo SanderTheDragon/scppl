@@ -11,10 +11,6 @@
 
 #include <gtest/gtest.h>
 
-#ifdef SCPPL_CONFING_BINARY_USE_PFR
-#include <boost/pfr/core.hpp>
-#endif
-
 #include "scppl/binary/Binary.hpp"
 
 #include "Data.hpp"
@@ -22,8 +18,8 @@
 #include "Utility.hpp"
 #include "Values.hpp"
 
-#ifndef SCPPL_CONFING_BINARY_USE_PFR
-#define SCPPL_CONFING_BINARY_USE_PFR 0
+#ifndef SCPPL_CONFIG_BINARY_USE_PFR
+#define SCPPL_CONFIG_BINARY_USE_PFR 0
 #endif
 
 // NOLINTBEGIN: Macros required here
@@ -110,7 +106,7 @@ TEST(BinaryUnpack, LittleEndianArray)
 TEST(BinaryUnpack, LittleEndianStruct)
 {
     if constexpr(std::endian::native == std::endian::little ||
-                 SCPPL_CONFING_BINARY_USE_PFR)
+                 SCPPL_CONFIG_BINARY_USE_PFR)
     {
         ASSERT_UNPACKED_VALUES_EQUAL_LE(AB);
         ASSERT_UNPACKED_VALUES_EQUAL_LE(CD);
@@ -121,7 +117,7 @@ TEST(BinaryUnpack, LittleEndianStruct)
 TEST(BinaryUnpack, LittleEndianStructStruct)
 {
     if constexpr(std::endian::native == std::endian::little ||
-                 SCPPL_CONFING_BINARY_USE_PFR)
+                 SCPPL_CONFIG_BINARY_USE_PFR)
     {
         ASSERT_UNPACKED_VALUES_EQUAL_LE(AB_CD);
     }
@@ -131,7 +127,7 @@ TEST(BinaryUnpack, LittleEndianStructStruct)
 TEST(BinaryUnpack, LittleEndianStructArray)
 {
     if constexpr(std::endian::native == std::endian::little ||
-                 SCPPL_CONFING_BINARY_USE_PFR)
+                 SCPPL_CONFIG_BINARY_USE_PFR)
     {
         ASSERT_UNPACKED_VALUES_EQUAL_LE(AB_CDArray);
     }
@@ -141,7 +137,7 @@ TEST(BinaryUnpack, LittleEndianStructArray)
 TEST(BinaryUnpack, LittleEndianArrayStruct)
 {
     if constexpr(std::endian::native == std::endian::little ||
-                 SCPPL_CONFING_BINARY_USE_PFR)
+                 SCPPL_CONFIG_BINARY_USE_PFR)
     {
         ASSERT_UNPACKED_VALUES_EQUAL_LE(ABCDArray);
     }
@@ -151,7 +147,7 @@ TEST(BinaryUnpack, LittleEndianArrayStruct)
 TEST(BinaryUnpack, LittleEndianArrayStructArray)
 {
     if constexpr(std::endian::native == std::endian::little ||
-                 SCPPL_CONFING_BINARY_USE_PFR)
+                 SCPPL_CONFIG_BINARY_USE_PFR)
     {
         ASSERT_UNPACKED_VALUES_EQUAL_LE(ABCDArrayArray);
     }
@@ -206,7 +202,7 @@ TEST(BinaryUnpack, BigEndianArray)
 TEST(BinaryUnpack, BigEndianStruct)
 {
     if constexpr(std::endian::native == std::endian::big ||
-                 SCPPL_CONFING_BINARY_USE_PFR)
+                 SCPPL_CONFIG_BINARY_USE_PFR)
     {
         ASSERT_UNPACKED_VALUES_EQUAL_BE(AB);
         ASSERT_UNPACKED_VALUES_EQUAL_BE(CD);
@@ -217,7 +213,7 @@ TEST(BinaryUnpack, BigEndianStruct)
 TEST(BinaryUnpack, BigEndianStructStruct)
 {
     if constexpr(std::endian::native == std::endian::big ||
-                 SCPPL_CONFING_BINARY_USE_PFR)
+                 SCPPL_CONFIG_BINARY_USE_PFR)
     {
         ASSERT_UNPACKED_VALUES_EQUAL_BE(AB_CD);
     }
@@ -227,7 +223,7 @@ TEST(BinaryUnpack, BigEndianStructStruct)
 TEST(BinaryUnpack, BigEndianStructArray)
 {
     if constexpr(std::endian::native == std::endian::big ||
-                 SCPPL_CONFING_BINARY_USE_PFR)
+                 SCPPL_CONFIG_BINARY_USE_PFR)
     {
         ASSERT_UNPACKED_VALUES_EQUAL_BE(AB_CDArray);
     }
@@ -237,7 +233,7 @@ TEST(BinaryUnpack, BigEndianStructArray)
 TEST(BinaryUnpack, BigEndianArrayStruct)
 {
     if constexpr(std::endian::native == std::endian::big ||
-                 SCPPL_CONFING_BINARY_USE_PFR)
+                 SCPPL_CONFIG_BINARY_USE_PFR)
     {
         ASSERT_UNPACKED_VALUES_EQUAL_BE(ABCDArray);
     }
@@ -247,7 +243,7 @@ TEST(BinaryUnpack, BigEndianArrayStruct)
 TEST(BinaryUnpack, BigEndianArrayStructArray)
 {
     if constexpr(std::endian::native == std::endian::big ||
-                 SCPPL_CONFING_BINARY_USE_PFR)
+                 SCPPL_CONFIG_BINARY_USE_PFR)
     {
         ASSERT_UNPACKED_VALUES_EQUAL_BE(ABCDArrayArray);
     }

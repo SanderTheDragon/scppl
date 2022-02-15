@@ -16,18 +16,31 @@ set(${PROJECT_NAME}_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
 add_library(${PROJECT_NAME} INTERFACE)
 add_library(${CMAKE_PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
-target_include_directories(${PROJECT_NAME}
-                           INTERFACE ${${PROJECT_NAME}_INCLUDE_DIR})
-
 
 include(DefineOption)
 
 find_file(PFR "boost/pfr.hpp")
-define_option(SCPPL_CONFING_BINARY_USE_PFR "PFR struct iterating"
+define_option(SCPPL_CONFIG_BINARY_USE_PFR "PFR struct iterating"
               DEFAULT ${PFR}
               TARGET ${PROJECT_NAME}
               INHERITANCE INTERFACE
               REQUIRES PFR)
+
+find_package(ICU COMPONENTS uc)
+define_option(SCPPL_CONFIG_BINARY_USE_ICU "ICU string conversion"
+              DEFAULT ${ICU_FOUND}
+              TARGET ${PROJECT_NAME}
+              INHERITANCE INTERFACE
+              REQUIRES ICU_FOUND)
+
+
+target_include_directories(${PROJECT_NAME}
+                           INTERFACE ${${PROJECT_NAME}_INCLUDE_DIR})
+
+if(SCPPL_CONFIG_BINARY_USE_ICU)
+    target_link_libraries(${PROJECT_NAME}
+                          INTERFACE ICU::uc)
+endif()
 
 
 if(SCPPL_BUILD_TESTS)

@@ -8,8 +8,11 @@ cmake_minimum_required(VERSION 3.12)
 find_package(GTest REQUIRED)
 
 
-set(TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/Binary_Pack.cpp"
-                 "${CMAKE_CURRENT_SOURCE_DIR}/Binary_Unpack.cpp")
+set(TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/BinaryString_Decode.cpp"
+                 "${CMAKE_CURRENT_SOURCE_DIR}/BinaryString_Encode.cpp"
+                 "${CMAKE_CURRENT_SOURCE_DIR}/Binary_Pack.cpp"
+                 "${CMAKE_CURRENT_SOURCE_DIR}/Binary_Unpack.cpp"
+                 "${CMAKE_CURRENT_SOURCE_DIR}/Main.cpp")
 
 
 add_executable(${PROJECT_NAME}Tests ${TEST_SOURCES})

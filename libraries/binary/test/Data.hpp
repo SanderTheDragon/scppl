@@ -13,9 +13,11 @@
 #include <gtest/gtest.h>
 
 #include "Values.hpp"
+#include "Types.hpp"
 #include "Utility.hpp"
 
-// Little-endian
+// For Binary_*
+//   Little-endian
 constexpr ByteArray<sizeof(A)> ADataLE{'\x01'};
 constexpr ByteArray<sizeof(B)> BDataLE{'\x23', '\x01'};
 constexpr ByteArray<sizeof(C)> CDataLE{'\x67', '\x45', '\x23', '\x01'};
@@ -46,7 +48,7 @@ constexpr ByteArray<sizeof(ABCDArray)> ABCDArrayDataLE =
 constexpr ByteArray<sizeof(ABCDArrayArray)> ABCDArrayArrayDataLE =
     combineArrays(ABCDArrayDataLE, ABCDArrayDataLE);
 
-// Big-endian
+//   Big-endian
 constexpr ByteArray<sizeof(A)> ADataBE{'\x01'};
 constexpr ByteArray<sizeof(B)> BDataBE{'\x01', '\x23'};
 constexpr ByteArray<sizeof(C)> CDataBE{'\x01', '\x23', '\x45', '\x67'};
@@ -76,5 +78,36 @@ constexpr ByteArray<sizeof(ABCDArray)> ABCDArrayDataBE =
 
 constexpr ByteArray<sizeof(ABCDArrayArray)> ABCDArrayArrayDataBE =
     combineArrays(ABCDArrayDataBE, ABCDArrayDataBE);
+
+// For BinaryString_*
+constexpr ByteArray<8> ENTextASCIIData{'\x54', '\x65', '\x73', '\x74',
+                                       '\x54', '\x65', '\x78', '\x74'};
+
+constexpr ByteArray<8> ENTextUTF8Data{'\x54', '\x65', '\x73', '\x74',
+                                      '\x54', '\x65', '\x78', '\x74'};
+
+constexpr ByteArray<18> ENTextUTF16Data{'\xFF', '\xFE', '\x54', '\x00',
+                                        '\x65', '\x00', '\x73', '\x00',
+                                        '\x74', '\x00', '\x54', '\x00',
+                                        '\x65', '\x00', '\x78', '\x00',
+                                        '\x74', '\x00'};
+
+constexpr ByteArray<14> JPTextShiftJISData{'\x83', '\x65', '\x83', '\x58',
+                                           '\x83', '\x67', '\x83', '\x65',
+                                           '\x83', '\x4C', '\x83', '\x58',
+                                           '\x83', '\x67'};
+
+constexpr ByteArray<21>  JPTextUTF8Data{'\xE3', '\x83', '\x86', '\xE3',
+                                        '\x82', '\xB9', '\xE3', '\x83',
+                                        '\x88', '\xE3', '\x83', '\x86',
+                                        '\xE3', '\x82', '\xAD', '\xE3',
+                                        '\x82', '\xB9', '\xE3', '\x83',
+                                        '\x88'};
+
+constexpr ByteArray<16>  JPTextUTF16Data{'\xFF', '\xFE', '\xC6', '\x30',
+                                         '\xB9', '\x30', '\xC8', '\x30',
+                                         '\xC6', '\x30', '\xAD', '\x30',
+                                         '\xB9', '\x30', '\xC8', '\x30'};
+
 
 #endif

@@ -12,8 +12,11 @@
 
 #include <gtest/gtest.h>
 
-#include "Utility.hpp"
+// Common
+template<std::size_t N>
+using ByteArray = std::array<char, N>;
 
+// For Binary_*
 using A_t = uint8_t;
 using B_t = uint16_t;
 using C_t = uint32_t;
@@ -85,5 +88,15 @@ inline auto operator==(ABCDArray_t<Ns...> lhs, ABCDArray_t<Ns...> rhs)
     return (lhs.a == rhs.a && lhs.b == rhs.b &&
             lhs.c == rhs.c && lhs.d == rhs.d);
 }
+
+// For BinaryString_*
+template<std::size_t N>
+using U8Array = std::array<char8_t, N>;
+
+template<std::size_t N>
+using U16Array = std::array<char16_t, N>;
+
+template<std::size_t N>
+using U32Array = std::array<char32_t, N>;
 
 #endif

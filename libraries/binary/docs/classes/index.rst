@@ -10,3 +10,4 @@ Classes
    :maxdepth: 2
 
    binary.rst
+   binary_string.rst

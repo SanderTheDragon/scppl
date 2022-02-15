@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: CC0-1.0
 
 HeaderFilterRegex:   .hpp
-Checks:              '-*,bugprone-*,clang-*,cppcoreguidelines-*,-cppcoreguidelines-avoid-magic-numbers,misc-*,modernize-*,-modernize-use-nodiscard,performance-*,portability-*,readability-*,-readability-braces-around-statements,-readability-identifier-length,-readability-implicit-bool-conversion,-readability-magic-numbers'
+Checks:              '-*,bugprone-*,-bugprone-easily-swappable-parameters,clang-*,cppcoreguidelines-*,-cppcoreguidelines-avoid-magic-numbers,misc-*,modernize-*,-modernize-use-nodiscard,performance-*,portability-*,readability-*,-readability-braces-around-statements,-readability-identifier-length,-readability-implicit-bool-conversion,-readability-magic-numbers'
 CheckOptions:
   - key:             bugprone-argument-comment.CommentBoolLiterals
     value:           '0'

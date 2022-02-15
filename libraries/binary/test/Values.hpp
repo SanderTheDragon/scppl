@@ -15,6 +15,7 @@
 #include "Types.hpp"
 #include "Utility.hpp"
 
+// Binary_*
 constexpr A_t A = 0x01;
 constexpr B_t B = 0x01'23;
 constexpr C_t C = 0x01'23'45'67;
@@ -35,5 +36,13 @@ constexpr AB_CDArray_t<2> AB_CDArray{AB_CD, AB_CD};
 constexpr ABCDArray_t<1, 2, 3, 4> ABCDArray{AArray, BArray, CArray, DArray};
 
 constexpr ABCDArrayArray_t<2, 1, 2, 3, 4> ABCDArrayArray{ABCDArray, ABCDArray};
+
+// BinaryString_*
+static std::basic_string<char8_t> const ENChar8Text{u8"TestText"};
+static std::basic_string<char8_t> const JPChar8Text{u8"テストテキスト"};
+static std::basic_string<char16_t> const ENChar16Text{u"TestText"};
+static std::basic_string<char16_t> const JPChar16Text{u"テストテキスト"};
+static std::basic_string<char32_t> const ENChar32Text{U"TestText"};
+static std::basic_string<char32_t> const JPChar32Text{U"テストテキスト"};
 
 #endif
