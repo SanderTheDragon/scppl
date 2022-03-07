@@ -16,6 +16,7 @@ option(SCPPL_LIBRARY_BINARY "Build the binary interpretation library" ON)
 
 option(SCPPL_BUILD_DOCS "Build documentation" OFF)
 option(SCPPL_BUILD_TESTS "Build tests" OFF)
+option(SCPPL_BUILD_COVERAGE "Build tests with coverage" OFF)
 
 
 include(CompilerTool)

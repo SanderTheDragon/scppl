@@ -28,6 +28,14 @@ target_include_directories(${PROJECT_NAME}Tests
                            PUBLIC ${${PROJECT_NAME}_INCLUDE_DIR}
                            PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
+if(SCPPL_BUILD_COVERAGE)
+    target_compile_options(${PROJECT_NAME}Tests
+                           PUBLIC --coverage -fno-inline -fno-inline-small-functions -fno-default-inline -g -O0)
+
+    target_link_options(${PROJECT_NAME}Tests
+                        PUBLIC --coverage)
+endif()
+
 
 include(CTest)
 include(GoogleTest)

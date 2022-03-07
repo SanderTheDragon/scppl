@@ -14,7 +14,7 @@ build:
   script:
     - mkdir $CI_PROJECT_DIR/build
     - cd $CI_PROJECT_DIR/build
-    - cmake .. -DSCPPL_LIBRARY_BINARY=ON -DSCPPL_TOOL_CLANG_TIDY=OFF -DSCPPL_TOOL_IWYU=OFF -DSCPPL_BUILD_DOCS=ON -DSCPPL_BUILD_TESTS=ON
+    - cmake .. -DSCPPL_LIBRARY_BINARY=ON -DSCPPL_TOOL_CLANG_TIDY=OFF -DSCPPL_TOOL_IWYU=OFF -DSCPPL_BUILD_DOCS=ON -DSCPPL_BUILD_TESTS=ON -DSCPPL_BUILD_COVERAGE=ON
     - make
   artifacts:
     paths:
@@ -37,6 +37,8 @@ coverage:
     - "build"
   script:
     - pip3 install gcovr
+    - cd $CI_PROJECT_DIR/build
+    - ctest
     - gcovr -r $CI_PROJECT_DIR -x $CI_PROJECT_DIR/coverage.xml --exclude-lines-by-pattern "\s+throw .+" --exclude-throw-branches
   artifacts:
     reports:

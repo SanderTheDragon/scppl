@@ -21,6 +21,7 @@ Extra Building
 ==============
 - ``SCPPL_BUILD_DOCS``: enable or disable building documentation. ``[OFF]``
 - ``SCPPL_BUILD_TESTS``: enable or disable building tests. ``[OFF]``
+- ``SCPPL_BUILD_COVERAGE``: enable or disable building with coverage tests. ``[OFF]``
 
 ==============
 Compiler Tools
