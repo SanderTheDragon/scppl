@@ -4,8 +4,8 @@
 
 macro(define_option DO_VAR DO_DESCRIPTION)
     cmake_parse_arguments(DO
-                          "DEFAULT"
-                          "TARGET;INHERITANCE"
+                          ""
+                          "DEFAULT;TARGET;INHERITANCE"
                           "REQUIRES"
                           ${ARGN})
 

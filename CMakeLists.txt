@@ -15,7 +15,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/scripts")
 option(SCPPL_LIBRARY_BINARY "Build the binary interpretation library" ON)
 
 option(SCPPL_BUILD_DOCS "Build documentation" OFF)
-option(SCPPL_BUILD_TESTS "Build tests" ON)
+option(SCPPL_BUILD_TESTS "Build tests" OFF)
 
 
 include(CompilerTool)

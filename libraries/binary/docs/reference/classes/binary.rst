@@ -10,6 +10,9 @@ This class is defined in :file:`Binary.hpp`:
 .. code-block:: cpp
    :class: cb-copy
 
-   #include "scppl/binary/Binary.hpp"
+   #include <scppl/binary/Binary.hpp>
 
+*********
+Reference
+*********
 .. doxygenclass:: scppl::Binary

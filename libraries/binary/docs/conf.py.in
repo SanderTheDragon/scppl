@@ -1,22 +1,41 @@
 # SPDX-FileCopyrightText: 2021-2022 SanderTheDragon <sanderthedragon@zoho.com>
 #
-# SPDX-License-Identifier: CC-BY-SA-4.0
+# SPDX-License-Identifier: MIT
 
-project = 'scppl @PROJECT_NAME@'
-copyright = '2021-2022, SanderTheDragon'
+import sys
+sys.path.append('@CMAKE_SOURCE_DIR@/docs')
+
+from sphinx.application import Sphinx
+
+from common import *  # * includes `footer_icons` and `toc_workaround`
+
+
+# Sphinx settings
 author = 'SanderTheDragon'
-
+copyright = f'2021-2022, SanderTheDragon'
+project = f'scppl Binary'
 release = '@PROJECT_VERSION@'
 
 extensions = [
     'breathe',
-    'sanderthedragon.codeblockbuttons'
+    'sanderthedragon.codeblockbuttons',
+    'sanderthedragon.mappedlinkrole'
 ]
 
 primary_domain = 'cpp'
 highlight_language = 'cpp'
 
+# HTML settings
 html_theme = 'furo'
+
+html_title = project
+
+html_static_path = [ '_static' ]
+html_css_files = [ 'css/custom.css' ]
+
+html_theme_options = {
+    'footer_icons': footer_icons
+}
 
 # `breathe` settings
 breathe_projects = {
@@ -30,3 +49,18 @@ breathe_show_include = False
 
 # `codeblockbuttons` settings
 cb_default = 'cbd-none'
+
+# `mappedlinkrole` settings
+# are mostly defined in "common.py"
+role_mapping.update({
+    'reference': documentation_url + '/binary/reference/{}.html'
+})
+
+reference_mapping = {
+    'Binary class': 'classes/binary',
+    'BinaryString class': 'classes/binary_string'
+}
+
+# `setup` required for TOC
+def setup(app: Sphinx) -> None:
+    toc_workaround('index.rst')

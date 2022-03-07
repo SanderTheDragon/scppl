@@ -2,7 +2,8 @@
 #
 # SPDX-License-Identifier: CC0-1.0
 
+# For building the documentation
 Sphinx==4.4.0
-furo==2022.2.14.1
+furo==2022.3.4
 breathe==4.33.1
-sanderthedragon-sphinxext==1.0.0
+sanderthedragon-sphinxext==1.0.1

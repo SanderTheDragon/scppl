@@ -10,7 +10,7 @@ Traits are defined in :file:`Traits.hpp`:
 .. code-block:: cpp
    :class: cb-copy
 
-   #include "scppl/binary/Traits.hpp"
+   #include <scppl/binary/Traits.hpp>
 
 *************
 PackableTrait

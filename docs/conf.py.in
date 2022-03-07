@@ -1,11 +1,56 @@
 # SPDX-FileCopyrightText: 2021-2022 SanderTheDragon <sanderthedragon@zoho.com>
 #
-# SPDX-License-Identifier: CC-BY-SA-4.0
+# SPDX-License-Identifier: MIT
 
-project = 'scppl'
-copyright = '2021-2022, SanderTheDragon'
+import sys
+sys.path.append('@CMAKE_SOURCE_DIR@/docs')
+
+from sphinx.application import Sphinx
+
+from common import *  # * includes `footer_icons` and `toc_workaround`
+
+
+# Sphinx settings
 author = 'SanderTheDragon'
+copyright = f'2021-2022, SanderTheDragon'
+project = f'SanderTheDragon\'s C++ Libraries'
 
-release = '@PROJECT_VERSION@'
+extensions = [
+    'sphinx.ext.ifconfig',
+    'sanderthedragon.codeblockbuttons',
+    'sanderthedragon.mappedlinkrole'
+]
 
+# HTML settings
 html_theme = 'furo'
+
+html_title = project
+
+html_static_path = [ '_static' ]
+html_css_files = [ 'css/custom.css' ]
+
+html_theme_options = {
+    'footer_icons': footer_icons
+}
+
+# `ifconfig` settings
+enable_values = ( 'on', 'yes', 'true', '1' )
+libraries = {
+    'binary': ('@SCPPL_LIBRARY_BINARY@'.lower() in enable_values)
+}
+
+# `codeblockbuttons` settings
+cb_default = 'cbd-none'
+
+# `mappedlinkrole` settings
+# are defined in "common.py"
+
+for ( key, value ) in libraries.items():
+    globals()[f'enable_{key}'] = value  # This is the best way
+
+# `setup` required for `ifconfig` and TOC
+def setup(app: Sphinx) -> None:
+    for key in libraries.keys():
+        app.add_config_value(f'enable_{key}', False, 'env')
+
+    toc_workaround('index.rst')

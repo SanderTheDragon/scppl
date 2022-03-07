@@ -10,6 +10,9 @@ This class is defined in :file:`BinaryString.hpp`:
 .. code-block:: cpp
    :class: cb-copy
 
-   #include "scppl/binary/BinaryString.hpp"
+   #include <scppl/binary/BinaryString.hpp>
 
+*********
+Reference
+*********
 .. doxygenclass:: scppl::BinaryString

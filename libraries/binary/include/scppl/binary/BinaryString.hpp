@@ -56,7 +56,7 @@ public:
      *          undefined, then the string is copied without encoding it.
      *
      * @param string    The string to encode.
-     * @param encoding  The encoding to use. ["UTF-8"]
+     * @param encoding  The encoding to use. [`"UTF-8"`]
      *
      * @throws std::runtime_error  An UCI error occurred.
      *
@@ -127,7 +127,7 @@ public:
      *          undefined, then the data is copied without decoding it.
      *
      * @param data      The data to decode.
-     * @param encoding  The encoding to use. ["UTF-8"]
+     * @param encoding  The encoding to use. [`"UTF-8"`]
      *
      * @throws std::runtime_error  An UCI error occurred.
      *
@@ -139,7 +139,7 @@ public:
     {
         String string{};
 
-#if SCPPL_CONFIG_BINARY_USE_ICU
+#ifdef SCPPL_CONFIG_BINARY_USE_ICU
         UErrorCode error{};
 
         UConverter* converter = ucnv_open(std::ranges::data(encoding), &error);
@@ -251,7 +251,7 @@ private:
     /**
      * @brief Convert an UCI string to a UTF-8, UTF-16 or UTF-32 string.
      *
-     * @param string  The UCI string to convert.
+     * @param uString  The UCI string to convert.
      *
      * @throws std::runtime_error  An UCI error occurred.
      *

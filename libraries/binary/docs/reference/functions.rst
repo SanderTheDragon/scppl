@@ -14,7 +14,7 @@ The following functions are defined in :file:`Utility.hpp`:
 .. code-block:: cpp
    :class: cb-copy
 
-   #include "scppl/binary/Utility.hpp"
+   #include <scppl/binary/Utility.hpp>
 
 ========
 LengthOf

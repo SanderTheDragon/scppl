@@ -10,7 +10,7 @@ Concepts are defined in :file:`Concepts.hpp`:
 .. code-block:: cpp
    :class: cb-copy
 
-   #include "scppl/binary/Concepts.hpp"
+   #include <scppl/binary/Concepts.hpp>
 
 *******
 RangeOf

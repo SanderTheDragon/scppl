@@ -1,0 +1,15 @@
+/*
+ * SPDX-FileCopyrightText: 2021-2022 SanderTheDragon <sanderthedragon@zoho.com>
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
+/* Make the "'s" fit on the same line */
+span.sidebar-brand-text {
+    overflow-wrap: normal !important;
+}
+
+/* Grayscale for unhovered icons */
+.grayscale:not(:hover) {
+    filter: grayscale(100%);
+}
