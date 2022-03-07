@@ -31,6 +31,17 @@ unit-test:
     reports:
       junit: "report.xml"
 
+coverage:
+  stage: test
+  dependencies:
+    - "build"
+  script:
+    - pip3 install gcovr
+    - gcovr -r $CI_PROJECT_DIR -x $CI_PROJECT_DIR/coverage.xml --exclude-lines-by-pattern "\s+throw .+" --exclude-throw-branches
+  artifacts:
+    reports:
+      cobertura: "coverage.xml"
+
 pages:
   stage: deploy
   dependencies:
