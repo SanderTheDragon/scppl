@@ -39,7 +39,8 @@ coverage:
     - pip3 install gcovr
     - cd $CI_PROJECT_DIR/build
     - ctest
-    - gcovr -r $CI_PROJECT_DIR -x $CI_PROJECT_DIR/coverage.xml --exclude-lines-by-pattern "\s+throw .+" --exclude-throw-branches
+    - gcovr -r $CI_PROJECT_DIR -x $CI_PROJECT_DIR/coverage.xml --exclude-lines-by-pattern "\s+throw .+" --exclude-throw-branches --print-summary
+  coverage: '/lines: \d+\.\d+%/'
   artifacts:
     reports:
       cobertura: "coverage.xml"
