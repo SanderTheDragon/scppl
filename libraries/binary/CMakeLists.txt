@@ -19,12 +19,12 @@ add_library(${CMAKE_PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 include(DefineOption)
 
-find_file(PFR "boost/pfr.hpp")
-define_option(SCPPL_CONFIG_BINARY_USE_PFR "PFR struct iterating"
-              DEFAULT ${PFR}
+find_package(BoostPFR)
+define_option(SCPPL_CONFIG_BINARY_USE_PFR "Boost.PFR struct iterating"
+              DEFAULT ${BoostPFR_FOUND}
               TARGET ${PROJECT_NAME}
               INHERITANCE INTERFACE
-              REQUIRES PFR)
+              REQUIRES BoostPFR_FOUND)
 
 find_package(ICU COMPONENTS uc)
 define_option(SCPPL_CONFIG_BINARY_USE_ICU "ICU string conversion"
@@ -35,7 +35,8 @@ define_option(SCPPL_CONFIG_BINARY_USE_ICU "ICU string conversion"
 
 
 target_include_directories(${PROJECT_NAME}
-                           INTERFACE ${${PROJECT_NAME}_INCLUDE_DIR})
+                           INTERFACE $<BUILD_INTERFACE:${${PROJECT_NAME}_INCLUDE_DIR}>
+                                     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 if(SCPPL_CONFIG_BINARY_USE_ICU)
     target_link_libraries(${PROJECT_NAME}
@@ -55,3 +56,18 @@ if(SCPPL_BUILD_DOCS)
                TARGET ${PROJECT_NAME}
                DOXYGEN_INPUT "${${PROJECT_NAME}_INCLUDE_DIR}")
 endif()
+
+
+include(GNUInstallDirs)
+
+install(TARGETS ${PROJECT_NAME}
+        EXPORT ${PROJECT_NAME}Targets
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(EXPORT ${PROJECT_NAME}Targets
+        FILE "${PROJECT_NAME}Targets.cmake"
+        NAMESPACE ${CMAKE_PROJECT_NAME}::
+        DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/cmake/${CMAKE_PROJECT_NAME}")
+install(DIRECTORY "${${PROJECT_NAME}_INCLUDE_DIR}/${CMAKE_PROJECT_NAME}"
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

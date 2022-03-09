@@ -74,3 +74,8 @@ Tests
 =====
 Will build the tests, requires ``SCPPL_BUILD_TESTS`` to be enabled and at least one library.
 The targets will be named like ``{Library}Tests``, these targets are included in ``ALL`` as well.
+
+=======
+Install
+=======
+The ``install`` target will install the built libraries, headers and CMake config files.

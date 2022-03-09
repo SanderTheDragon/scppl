@@ -49,13 +49,13 @@ For options see :building:`Building <scppl Index:CMake Options>`.
 
 After it configures correctly, the build can be done, but since there are only header-only libraries now, it will not do anything.
 For targets that will do something, see :building:`Building <scppl Index:Makefile Targets>`.
+One of those targets is the normal ``install`` target, which can be used.
 
 .. code-block:: sh
    :class: cb-copy
 
    make
-
-Installing is not implemented yet (I realised while writing these documents), it will be added soon.
+   make install
 
 *******
 License

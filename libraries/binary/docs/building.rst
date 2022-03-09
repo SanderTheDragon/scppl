@@ -37,4 +37,4 @@ CMake Options
 Libraries
 =========
 - ``SCPPL_CONFIG_BINARY_USE_ICU``: enable using :extern:`ICU`, requires it to be found. ``[${ICU_FOUND}]``
-- ``SCPPL_CONFIG_BINARY_USE_PFR``: enable using :extern:`Boost PFR`, requires it to be found. ``[${PFR}]``
+- ``SCPPL_CONFIG_BINARY_USE_PFR``: enable using :extern:`Boost PFR`, requires it to be found. ``[${BoostPFR_FOUND}]``

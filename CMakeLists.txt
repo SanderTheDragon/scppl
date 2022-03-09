@@ -5,11 +5,13 @@
 cmake_minimum_required(VERSION 3.12)
 
 project(scppl
+        VERSION 1.0.0
         DESCRIPTION "SanderTheDragon's C++ Libraries"
         LANGUAGES CXX)
 
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/scripts")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules"
+                              "${CMAKE_SOURCE_DIR}/cmake/scripts")
 
 
 option(SCPPL_LIBRARY_BINARY "Build the binary interpretation library" ON)
@@ -59,3 +61,22 @@ configure_file("${CMAKE_SOURCE_DIR}/cmake/tools/clang-no-tidy"
 if(SCPPL_LIBRARY_BINARY)
     add_subdirectory("${CMAKE_SOURCE_DIR}/libraries/binary")
 endif()
+
+
+include(CMakePackageConfigHelpers)
+include(GNUInstallDirs)
+
+write_basic_package_version_file("${CMAKE_BINARY_DIR}/cmake/scpplConfigVersion.cmake"
+                                 VERSION ${CMAKE_PROJECT_VERSION}
+                                 COMPATIBILITY SameMajorVersion)
+configure_package_config_file("${CMAKE_SOURCE_DIR}/cmake/templates/scpplConfig.cmake.in"
+                              "${CMAKE_BINARY_DIR}/cmake/scpplConfig.cmake"
+                              INSTALL_DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/cmake/${CMAKE_PROJECT_NAME}")
+
+install(FILES "${CMAKE_BINARY_DIR}/cmake/scpplConfig.cmake"
+              "${CMAKE_BINARY_DIR}/cmake/scpplConfigVersion.cmake"
+        DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/cmake/${CMAKE_PROJECT_NAME}")
+
+# Install additional find modules
+install(FILES "${CMAKE_SOURCE_DIR}/cmake/modules/FindBoostPFR.cmake"
+        DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/cmake/${CMAKE_PROJECT_NAME}/dependencies")
