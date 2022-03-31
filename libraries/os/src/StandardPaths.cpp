@@ -351,7 +351,11 @@ void StandardPaths::readXDGUserDirsFile(Path const& path,
         if (value.at(0) == '"')
             value = value.substr(1, parts.at(1).length() - 2);
 
-        if (!callback(parts.at(0), String::expand(value)))
+        Path path = String::expand(value);
+        if (path.is_relative())
+            path = FileSystem::getHome() / path;
+
+        if (!callback(parts.at(0), path))
             break; // GCOVR_EXCL_LINE, is not reached with default options
     }
 };

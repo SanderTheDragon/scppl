@@ -84,7 +84,7 @@ TEST(StandardPaths, GetDataDirectoriesFallback)
     ::unsetenv("XDG_DATA_HOME");
 
     ensureDirectoriesExist({ "/usr/share", "/usr/local/share",
-                             scppl::FileSystem::getHome() / ".config" });
+                             scppl::FileSystem::getHome() / ".local/share" });
 
     assertStandardPaths(scppl::StandardPaths::getDataDirectories(),
                         scppl::StandardPaths::DataDirectory);
