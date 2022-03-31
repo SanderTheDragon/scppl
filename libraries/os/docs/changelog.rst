@@ -5,15 +5,7 @@
 #########
 Changelog
 #########
-Library specific changelogs:
-
-.. ifconfig:: enable_binary
-
-   - :changelog:`scppl Binary`
-
-.. ifconfig:: enable_os
-
-   - :changelog:`scppl OS`
+Changelogs for other libraries are available from the :changelog:`scppl Index`.
 
 ***********
 1.0.0 (WIP)

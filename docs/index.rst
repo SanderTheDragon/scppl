@@ -11,7 +11,7 @@
 #######################################
 SanderTheDragon's C++ Libraries (scppl)
 #######################################
-:program:`scppl` is (or will be) a collection of C++ libraries I wrote because I could not find libraries with the functionalities I needed (or wanted).
+:program:`scppl` is (or will be) a collection of C++ libraries I wrote because I could not find (or did not like) the libraries with the functionalities I needed (or wanted).
 The following libraries exist:
 
 .. ifconfig:: enable_binary
@@ -26,6 +26,19 @@ The following libraries exist:
 .. ifconfig:: not enable_binary
 
    - :program:`scppl Binary` (*unavailable*), a C++20 header-only library for packing, unpacking, encoding and decoding binary data.
+
+.. ifconfig:: enable_os
+
+   - :project:`scppl OS`, a C++20 library for OS related functions.
+
+   .. toctree::
+      :hidden:
+
+      {{:project:`scppl OS`}}
+
+.. ifconfig:: not enable_os
+
+   - :program:`scppl OS` (*unavailable*), a C++20 library for OS related functions.
 
 ********
 Building
@@ -47,9 +60,9 @@ For options see :building:`Building <scppl Index:CMake Options>`.
    cd build
    cmake ..
 
-After it configures correctly, the build can be done, but since there are only header-only libraries now, it will not do anything.
-For targets that will do something, see :building:`Building <scppl Index:Makefile Targets>`.
-One of those targets is the normal ``install`` target, which can be used.
+After it configures correctly, the build can be done, this will build all the shared objects for the enabled non-header-only libraries.
+Another target is the normal ``install`` target, which can be used to install the headers and shared objects.
+See :building:`Building <scppl Index:Makefile Targets>` for more targets.
 
 .. code-block:: sh
    :class: cb-copy

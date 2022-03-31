@@ -18,11 +18,7 @@
 #include "Utility.hpp"
 #include "Values.hpp"
 
-#ifndef SCPPL_CONFIG_BINARY_USE_PFR
-#define SCPPL_CONFIG_BINARY_USE_PFR 0
-#endif
-
-// NOLINTBEGIN: Macros required here
+// NOLINTBEGIN(cppcoreguidelines-macro-usage): Macros required here
 #define DATA_NAME_LE(variable) variable ## DataLE
 #define DATA_NAME_BE(variable) variable ## DataBE
 #define TYPE_OF(variable) std::remove_const_t<decltype(variable)>
@@ -37,7 +33,7 @@
     ASSERT_UNPACKED_VALUES_EQUAL(std::endian::little, LE, __VA_ARGS__)
 #define ASSERT_UNPACKED_VALUES_EQUAL_BE(...) \
     ASSERT_UNPACKED_VALUES_EQUAL(std::endian::big, BE, __VA_ARGS__)
-// NOLINTEND
+// NOLINTEND(cppcoreguidelines-macro-usage)
 
 template<std::size_t I = 0, typename... Ts>
 requires(I == sizeof...(Ts))
@@ -57,7 +53,6 @@ void assertValuesEqual(std::tuple<Ts...> values,
     assertValuesEqual<I + 1>(values, expected);
 }
 
-// NOLINTNEXTLINE: External
 TEST(BinaryUnpack, LittleEndianOneType)
 {
     ASSERT_UNPACKED_VALUES_EQUAL_LE(A);
@@ -66,7 +61,6 @@ TEST(BinaryUnpack, LittleEndianOneType)
     ASSERT_UNPACKED_VALUES_EQUAL_LE(D);
 }
 
-// NOLINTNEXTLINE: External
 TEST(BinaryUnpack, LittleEndianTwoType)
 {
     ASSERT_UNPACKED_VALUES_EQUAL_LE(A, B);
@@ -75,7 +69,6 @@ TEST(BinaryUnpack, LittleEndianTwoType)
     ASSERT_UNPACKED_VALUES_EQUAL_LE(D, A);
 }
 
-// NOLINTNEXTLINE: External
 TEST(BinaryUnpack, LittleEndianThreeType)
 {
     ASSERT_UNPACKED_VALUES_EQUAL_LE(A, B, C);
@@ -84,7 +77,6 @@ TEST(BinaryUnpack, LittleEndianThreeType)
     ASSERT_UNPACKED_VALUES_EQUAL_LE(D, A, B);
 }
 
-// NOLINTNEXTLINE: External
 TEST(BinaryUnpack, LittleEndianFourType)
 {
     ASSERT_UNPACKED_VALUES_EQUAL_LE(A, B, C, D);
@@ -93,7 +85,6 @@ TEST(BinaryUnpack, LittleEndianFourType)
     ASSERT_UNPACKED_VALUES_EQUAL_LE(D, A, B, C);
 }
 
-// NOLINTNEXTLINE: External
 TEST(BinaryUnpack, LittleEndianArray)
 {
     ASSERT_UNPACKED_VALUES_EQUAL_LE(AArray);
@@ -102,7 +93,6 @@ TEST(BinaryUnpack, LittleEndianArray)
     ASSERT_UNPACKED_VALUES_EQUAL_LE(DArray);
 }
 
-// NOLINTNEXTLINE: External
 TEST(BinaryUnpack, LittleEndianStruct)
 {
     if constexpr(std::endian::native == std::endian::little ||
@@ -113,7 +103,6 @@ TEST(BinaryUnpack, LittleEndianStruct)
     }
 }
 
-// NOLINTNEXTLINE: External
 TEST(BinaryUnpack, LittleEndianStructStruct)
 {
     if constexpr(std::endian::native == std::endian::little ||
@@ -123,7 +112,6 @@ TEST(BinaryUnpack, LittleEndianStructStruct)
     }
 }
 
-// NOLINTNEXTLINE: External
 TEST(BinaryUnpack, LittleEndianStructArray)
 {
     if constexpr(std::endian::native == std::endian::little ||
@@ -133,7 +121,6 @@ TEST(BinaryUnpack, LittleEndianStructArray)
     }
 }
 
-// NOLINTNEXTLINE: External
 TEST(BinaryUnpack, LittleEndianArrayStruct)
 {
     if constexpr(std::endian::native == std::endian::little ||
@@ -143,7 +130,6 @@ TEST(BinaryUnpack, LittleEndianArrayStruct)
     }
 }
 
-// NOLINTNEXTLINE: External
 TEST(BinaryUnpack, LittleEndianArrayStructArray)
 {
     if constexpr(std::endian::native == std::endian::little ||
@@ -153,7 +139,6 @@ TEST(BinaryUnpack, LittleEndianArrayStructArray)
     }
 }
 
-// NOLINTNEXTLINE: External
 TEST(BinaryUnpack, BigEndianOneType)
 {
     ASSERT_UNPACKED_VALUES_EQUAL_BE(A);
@@ -162,7 +147,6 @@ TEST(BinaryUnpack, BigEndianOneType)
     ASSERT_UNPACKED_VALUES_EQUAL_BE(D);
 }
 
-// NOLINTNEXTLINE: External
 TEST(BinaryUnpack, BigEndianTwoType)
 {
     ASSERT_UNPACKED_VALUES_EQUAL_BE(A, B);
@@ -171,7 +155,6 @@ TEST(BinaryUnpack, BigEndianTwoType)
     ASSERT_UNPACKED_VALUES_EQUAL_BE(D, A);
 }
 
-// NOLINTNEXTLINE: External
 TEST(BinaryUnpack, BigEndianThreeType)
 {
     ASSERT_UNPACKED_VALUES_EQUAL_BE(A, B, C);
@@ -180,7 +163,6 @@ TEST(BinaryUnpack, BigEndianThreeType)
     ASSERT_UNPACKED_VALUES_EQUAL_BE(D, A, B);
 }
 
-// NOLINTNEXTLINE: External
 TEST(BinaryUnpack, BigEndianFourType)
 {
     ASSERT_UNPACKED_VALUES_EQUAL_BE(A, B, C, D);
@@ -189,7 +171,6 @@ TEST(BinaryUnpack, BigEndianFourType)
     ASSERT_UNPACKED_VALUES_EQUAL_BE(D, A, B, C);
 }
 
-// NOLINTNEXTLINE: External
 TEST(BinaryUnpack, BigEndianArray)
 {
     ASSERT_UNPACKED_VALUES_EQUAL_BE(AArray);
@@ -198,7 +179,6 @@ TEST(BinaryUnpack, BigEndianArray)
     ASSERT_UNPACKED_VALUES_EQUAL_BE(DArray);
 }
 
-// NOLINTNEXTLINE: External
 TEST(BinaryUnpack, BigEndianStruct)
 {
     if constexpr(std::endian::native == std::endian::big ||
@@ -209,7 +189,6 @@ TEST(BinaryUnpack, BigEndianStruct)
     }
 }
 
-// NOLINTNEXTLINE: External
 TEST(BinaryUnpack, BigEndianStructStruct)
 {
     if constexpr(std::endian::native == std::endian::big ||
@@ -219,7 +198,6 @@ TEST(BinaryUnpack, BigEndianStructStruct)
     }
 }
 
-// NOLINTNEXTLINE: External
 TEST(BinaryUnpack, BigEndianStructArray)
 {
     if constexpr(std::endian::native == std::endian::big ||
@@ -229,7 +207,6 @@ TEST(BinaryUnpack, BigEndianStructArray)
     }
 }
 
-// NOLINTNEXTLINE: External
 TEST(BinaryUnpack, BigEndianArrayStruct)
 {
     if constexpr(std::endian::native == std::endian::big ||
@@ -239,7 +216,6 @@ TEST(BinaryUnpack, BigEndianArrayStruct)
     }
 }
 
-// NOLINTNEXTLINE: External
 TEST(BinaryUnpack, BigEndianArrayStructArray)
 {
     if constexpr(std::endian::native == std::endian::big ||

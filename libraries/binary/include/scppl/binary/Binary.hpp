@@ -11,7 +11,7 @@
 #include <ranges>
 #include <tuple>
 
-#ifdef SCPPL_CONFIG_BINARY_USE_PFR
+#if SCPPL_CONFIG_BINARY_USE_PFR
 #include <boost/pfr.hpp>
 #endif
 
@@ -56,7 +56,7 @@ public:
         -> ByteArray<lengthOf<Ts...>()>
     {
         ByteArray<lengthOf<Ts...>()> data{};
-        auto position = std::ranges::begin(data); // NOLINT
+        auto position = std::ranges::begin(data);
         auto packValue = [&]<typename T>(T value) -> void
         {
             auto raw = toBytes<T>(value);
@@ -121,7 +121,7 @@ public:
      * @return An array containing the binary data.
      */
     template<Packable T>
-#ifdef SCPPL_CONFIG_BINARY_USE_PFR
+#if SCPPL_CONFIG_BINARY_USE_PFR
     requires(!std::ranges::range<T> &&
              (!std::is_class_v<T> || endian() == std::endian::native))
 #else
@@ -169,7 +169,7 @@ public:
         return raw;
     }
 
-#ifdef SCPPL_CONFIG_BINARY_USE_PFR
+#if SCPPL_CONFIG_BINARY_USE_PFR
     /**
      * @brief Converts all fields of struct `T` into raw bytes.
      *
@@ -213,7 +213,7 @@ public:
      * @return The value of type `T`.
      */
     template<Unpackable T>
-#ifdef SCPPL_CONFIG_BINARY_USE_PFR
+#if SCPPL_CONFIG_BINARY_USE_PFR
     requires(!std::ranges::range<T> &&
              (!std::is_class_v<T> || endian() == std::endian::native))
 #else
@@ -261,7 +261,7 @@ public:
         return range;
     }
 
-#ifdef SCPPL_CONFIG_BINARY_USE_PFR
+#if SCPPL_CONFIG_BINARY_USE_PFR
     /**
      * @brief Converts raw bytes into a struct of type `T`.
      *

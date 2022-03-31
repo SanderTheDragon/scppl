@@ -15,6 +15,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules"
 
 
 option(SCPPL_LIBRARY_BINARY "Build the binary interpretation library" ON)
+option(SCPPL_LIBRARY_OS "Build the os utility library" ON)
 
 option(SCPPL_BUILD_DOCS "Build documentation" OFF)
 option(SCPPL_BUILD_TESTS "Build tests" OFF)
@@ -60,6 +61,10 @@ configure_file("${CMAKE_SOURCE_DIR}/cmake/tools/clang-no-tidy"
 
 if(SCPPL_LIBRARY_BINARY)
     add_subdirectory("${CMAKE_SOURCE_DIR}/libraries/binary")
+endif()
+
+if(SCPPL_LIBRARY_OS)
+    add_subdirectory("${CMAKE_SOURCE_DIR}/libraries/os")
 endif()
 
 

@@ -1,0 +1,27 @@
+/*
+ * SPDX-FileCopyrightText: 2021-2022 SanderTheDragon <sanderthedragon@zoho.com>
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
+/* Style for a table with code-blocks */
+table.codetable {
+    margin: 0 !important;
+}
+
+table.codetable td {
+    padding: 0 !important;
+
+    background-color: var(--color-code-background);
+
+    vertical-align: top;
+}
+
+table.codetable td > div {
+    margin: 0 !important;
+}
+
+/* Grayscale for unhovered icons */
+.grayscale:not(:hover) {
+    filter: grayscale(100%);
+}

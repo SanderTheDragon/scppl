@@ -9,7 +9,7 @@
 #include <string_view>
 #include <vector>
 
-#ifdef SCPPL_CONFIG_BINARY_USE_ICU
+#if SCPPL_CONFIG_BINARY_USE_ICU
 #include <unicode/ucnv.h>
 #include <unicode/ustring.h>
 #endif
@@ -67,7 +67,7 @@ public:
     {
         ByteVector data{};
 
-#ifdef SCPPL_CONFIG_BINARY_USE_ICU
+#if SCPPL_CONFIG_BINARY_USE_ICU
         UErrorCode error{};
 
         std::u16string uString = toUString(string);
@@ -139,7 +139,7 @@ public:
     {
         String string{};
 
-#ifdef SCPPL_CONFIG_BINARY_USE_ICU
+#if SCPPL_CONFIG_BINARY_USE_ICU
         UErrorCode error{};
 
         UConverter* converter = ucnv_open(std::ranges::data(encoding), &error);
@@ -187,7 +187,7 @@ public:
     }
 
 private:
-#ifdef SCPPL_CONFIG_BINARY_USE_ICU
+#if SCPPL_CONFIG_BINARY_USE_ICU
     /**
      * @brief Convert a UTF-8, UTF-16 or UTF-32 string to a UCI string.
      *
@@ -211,10 +211,11 @@ private:
 
         if constexpr(sizeof(Char) == 1)
         {
-            // NOLINTBEGIN: Allow `reinterpret_cast`
+            // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
+            // Allow `reinterpret_cast`
             auto const* charString =
                 reinterpret_cast<char const*>(std::ranges::data(string));
-            // NOLINTEND
+            // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 
             u_strFromUTF8(std::ranges::data(uString), uStringLength,
                           &uStringLength,
@@ -229,10 +230,11 @@ private:
         }
         else if constexpr(sizeof(Char) == 4)
         {
-            // NOLINTBEGIN: Allow `reinterpret_cast`
+            // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
+            // Allow `reinterpret_cast`
             auto const* uchar32String =
                 reinterpret_cast<UChar32 const*>(std::ranges::data(string));
-            // NOLINTEND
+            // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 
             u_strFromUTF32(std::ranges::data(uString), uStringLength,
                            &uStringLength,
@@ -273,10 +275,11 @@ private:
 
         if constexpr(sizeof(Char) == 1)
         {
-            // NOLINTBEGIN: Allow `reinterpret_cast`
+            // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
+            // Allow `reinterpret_cast`
             auto* charString =
                 reinterpret_cast<char*>(std::ranges::data(string));
-            // NOLINTEND
+            // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 
             u_strToUTF8(charString, stringLength, &stringLength,
                         std::ranges::data(uString), uStringLength,
@@ -290,10 +293,11 @@ private:
         }
         else if constexpr(sizeof(Char) == 4)
         {
-            // NOLINTBEGIN: Allow `reinterpret_cast`
+            // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
+            // Allow `reinterpret_cast`
             auto* uchar32String =
                 reinterpret_cast<UChar32*>(std::ranges::data(string));
-            // NOLINTEND
+            // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 
             u_strToUTF32(uchar32String, stringLength, &stringLength,
                          std::ranges::data(uString), uStringLength,

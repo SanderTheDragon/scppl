@@ -15,10 +15,6 @@
 #include "Types.hpp"
 #include "Values.hpp"
 
-#ifndef SCPPL_CONFIG_BINARY_USE_ICU
-#define SCPPL_CONFIG_BINARY_USE_ICU 0
-#endif
-
 template<typename CharT, std::size_t N>
 void decodeAndAssert(ByteArray<N> data,
                      std::string_view encoding,
@@ -27,7 +23,7 @@ void decodeAndAssert(ByteArray<N> data,
     auto string = scppl::BinaryString<char, CharT>::decode(data, encoding);
 
     ASSERT_EQ(std::ranges::size(string), std::ranges::size(expected));
-    for (std::size_t i = 0; i < std::ranges::size(string); i++)
+    for (std::size_t i = 0; i < std::ranges::size(string); ++i)
         ASSERT_EQ(string.at(i), expected.at(i));
 }
 

@@ -63,7 +63,8 @@ role_mapping = {
 project_mapping = {
     'scppl Index': '',
 
-    'scppl Binary': 'binary/'
+    'scppl Binary': 'binary/',
+    'scppl OS': 'os/'
 }
 
 building_mapping = project_mapping
@@ -73,6 +74,7 @@ repository_mapping = {
     'GitLab': repository_url,
 
     'Binary': project_repository_url.format('binary'),
+    'OS': project_repository_url.format('os')
 }
 
 cppreference_mapping = {

@@ -34,6 +34,9 @@ define_option(SCPPL_CONFIG_BINARY_USE_ICU "ICU string conversion"
               REQUIRES ICU_FOUND)
 
 
+set_target_properties(${PROJECT_NAME} PROPERTIES
+                      CXX_STANDARD 20 CXX_EXTENSIONS NO CXX_STANDARD_REQUIRED YES)
+
 target_include_directories(${PROJECT_NAME}
                            INTERFACE $<BUILD_INTERFACE:${${PROJECT_NAME}_INCLUDE_DIR}>
                                      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)

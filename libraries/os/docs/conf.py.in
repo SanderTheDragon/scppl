@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2021-2022 SanderTheDragon <sanderthedragon@zoho.com>
 #
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: CC-BY-SA-4.0
 
 import sys
 sys.path.append('@CMAKE_SOURCE_DIR@/docs')
@@ -13,13 +13,17 @@ from common import *  # * includes `footer_icons` and `toc_workaround`
 # Sphinx settings
 author = 'SanderTheDragon'
 copyright = f'2021-2022, SanderTheDragon'
-project = f'SanderTheDragon\'s C++ Libraries'
+project = f'scppl OS'
+release = '@PROJECT_VERSION@'
 
 extensions = [
-    'sphinx.ext.ifconfig',
+    'breathe',
     'sanderthedragon.codeblockbuttons',
     'sanderthedragon.mappedlinkrole'
 ]
+
+primary_domain = 'cpp'
+highlight_language = 'cpp'
 
 # HTML settings
 html_theme = 'furo'
@@ -33,25 +37,29 @@ html_theme_options = {
     'footer_icons': footer_icons
 }
 
-# `ifconfig` settings
-enable_values = ( 'on', 'yes', 'true', '1' )
-libraries = {
-    'binary': ('@SCPPL_LIBRARY_BINARY@'.lower() in enable_values),
-    'os': ('@SCPPL_LIBRARY_OS@'.lower() in enable_values)
+# `breathe` settings
+breathe_projects = {
+   'scppl @PROJECT_NAME@': '@SD_DOXYGEN_DIR@/xml'
 }
+
+breathe_default_project = 'scppl @PROJECT_NAME@'
+breathe_default_members = ( 'members', 'undoc-members' )
+
+breathe_show_include = False
 
 # `codeblockbuttons` settings
 cb_default = 'cbd-none'
 
 # `mappedlinkrole` settings
-# are defined in "common.py"
+# are mostly defined in "common.py"
+role_mapping.update({
+    'reference': documentation_url + '/os/reference/{}.html'
+})
 
-for ( key, value ) in libraries.items():
-    globals()[f'enable_{key}'] = value  # This is the best way
+reference_mapping = {
 
-# `setup` required for `ifconfig` and TOC
+}
+
+# `setup` required for TOC
 def setup(app: Sphinx) -> None:
-    for key in libraries.keys():
-        app.add_config_value(f'enable_{key}', False, 'env')
-
     toc_workaround('index.rst')

@@ -6,15 +6,11 @@
 
 #include <gtest/gtest.h>
 
-#ifdef SCPPL_CONFIG_BINARY_USE_ICU
+#if SCPPL_CONFIG_BINARY_USE_ICU
 #include <unicode/uclean.h>
 #include <unicode/ucnv.h>
 #include <unicode/urename.h>
 #include <unicode/utypes.h>
-#endif
-
-#ifndef SCPPL_CONFIG_BINARY_USE_ICU
-#define SCPPL_CONFIG_BINARY_USE_ICU 0
 #endif
 
 class Environment : public testing::Environment
@@ -47,7 +43,7 @@ auto main(int argc, char* argv[])
 {
     testing::InitGoogleTest(&argc, argv);
 
-    // NOLINTNEXTLINE: Allow `new`
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory): `new` is required here
     testing::AddGlobalTestEnvironment(new Environment());
 
     return RUN_ALL_TESTS();

@@ -14,7 +14,7 @@
 
 #include "Types.hpp"
 
-// NOLINTBEGIN: Macros required here
+// NOLINTBEGIN(cppcoreguidelines-macro-usage): Macros required here
 #define PARENTHESES ()
 
 #define EXPAND(...) EXPAND_HELPER(EXPAND_HELPER(EXPAND_HELPER(__VA_ARGS__)))
@@ -27,14 +27,14 @@
     macro(first) \
     __VA_OPT__(, FOR_EACH_AGAIN PARENTHESES (macro, __VA_ARGS__))
 #define FOR_EACH_AGAIN() FOR_EACH_HELPER
-// NOLINTEND
+// NOLINTEND(cppcoreguidelines-macro-usage)
 
 template<std::size_t... Ns>
 constexpr auto combineArrays(ByteArray<Ns>... arrays)
     -> ByteArray<(Ns + ...)>
 {
     ByteArray<(Ns + ...)> result{};
-    auto position = std::ranges::begin(result); // NOLINT
+    auto position = std::ranges::begin(result);
     auto append = [&]<std::size_t N>(ByteArray<N> array) -> void
     {
         position =

@@ -14,14 +14,23 @@ Other than the regular CMake options, the following are available.
 =================
 Library Selection
 =================
-- ``SCPPL_LIBRARY_BINARY``: enable or disable :program:`scppl Binary`. ``[ON]``
+``SCPPL_LIBRARY_BINARY``
+    Enable or disable :program:`scppl Binary`. ``[ON]``
+
+``SCPPL_LIBRARY_OS``
+    Enable or disable :program:`scppl OS`. ``[ON]``
 
 ==============
 Extra Building
 ==============
-- ``SCPPL_BUILD_DOCS``: enable or disable building documentation. ``[OFF]``
-- ``SCPPL_BUILD_TESTS``: enable or disable building tests. ``[OFF]``
-- ``SCPPL_BUILD_COVERAGE``: enable or disable building with coverage tests. ``[OFF]``
+``SCPPL_BUILD_DOCS``
+    Enable or disable building documentation. ``[OFF]``
+
+``SCPPL_BUILD_TESTS``
+    Enable or disable building tests. ``[OFF]``
+
+``SCPPL_BUILD_COVERAGE``
+    Enable or disable building with coverage testing. ``[OFF]``
 
 ==============
 Compiler Tools
@@ -29,15 +38,25 @@ Compiler Tools
 
 Clang Tidy
 ----------
-- ``SCPPL_TOOL_CLANG_TIDY``: enable or disable building with :extern:`clang-tidy`. ``[OFF]``
-- ``SCPPL_TOOL_CLANG_TIDY_EXE``: define the executable path for :extern:`clang-tidy`. ``["clang-tidy"]``
-- ``SCPPL_TOOL_CLANG_TIDY_ARGS``: define extra arguments for :extern:`clang-tidy`. ``[""]``
+``SCPPL_TOOL_CLANG_TIDY``
+    Enable or disable building with :extern:`clang-tidy`. ``[OFF]``
+
+``SCPPL_TOOL_CLANG_TIDY_EXE``
+    Define the executable path for :extern:`clang-tidy`. ``["clang-tidy"]``
+
+``SCPPL_TOOL_CLANG_TIDY_ARGS``
+    Define extra arguments for :extern:`clang-tidy`. ``[""]``
 
 Include What You Use
 --------------------
-- ``SCPPL_TOOL_IWYU``: enable or disable building with :extern:`include-what-you-use`. ``[OFF]``
-- ``SCPPL_TOOL_IWYU_EXE``: define the executable path for :extern:`include-what-you-use`. ``["include-what-you-use"]``.
-- ``SCPPL_TOOL_IWYU_ARGS``: define extra arguments for :extern:`include-what-you-use`. ``["-Xiwyu" "--mapping_file=${CMAKE_SOURCE_DIR}/cmake/tools/googletest.imp"]``.
+``SCPPL_TOOL_IWYU``
+    Enable or disable building with :extern:`include-what-you-use`. ``[OFF]``
+
+``SCPPL_TOOL_IWYU_EXE``
+    Define the executable path for :extern:`include-what-you-use`. ``["include-what-you-use"]``.
+
+``SCPPL_TOOL_IWYU_ARGS``
+    Define extra arguments for :extern:`include-what-you-use`. ``["-Xiwyu" "--mapping_file=${CMAKE_SOURCE_DIR}/cmake/tools/googletest.imp"]``.
 
 
 ========================
@@ -48,6 +67,10 @@ Options for libraries can be found in their own documentation.
 .. ifconfig:: enable_binary
 
    - :building:`scppl Binary <:CMake Options>`
+
+.. ifconfig:: enable_os
+
+   - :building:`scppl OS <:CMake Options>`
 
 
 ****************
