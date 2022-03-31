@@ -344,7 +344,7 @@ void StandardPaths::readXDGUserDirsFile(Path const& path,
     {
         auto parts = String::split(line, "=");
         if (parts.size() < 2)
-            continue;
+            continue; // GCOVR_EXCL_LINE, possible this is not reached
 
         // Remove the '"' from the begin and end
         auto value = parts.at(1);
