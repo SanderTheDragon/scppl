@@ -42,7 +42,7 @@ public:
             std::filesystem::create_directories(scppl::FileSystem::getHome()
                                                 / directory);
         }
-        // GCOVR_EXCL_END
+        // GCOVR_EXCL_STOP
 #endif
     }
 };

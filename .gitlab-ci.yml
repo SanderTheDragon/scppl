@@ -36,7 +36,7 @@ coverage:
   dependencies:
     - "build"
   script:
-    - pip3 install gcovr
+    - pip3 install gcovr==5.0
     - cd $CI_PROJECT_DIR/build
     - ctest
     - gcovr -r $CI_PROJECT_DIR -x $CI_PROJECT_DIR/coverage.xml --exclude-lines-by-pattern "(\s+throw .+)|(.*GCOVR_EXCL_LINE.*)" --exclude-throw-branches --print-summary
