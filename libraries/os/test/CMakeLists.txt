@@ -9,6 +9,7 @@ find_package(GTest REQUIRED)
 
 
 set(TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/FileSystem.cpp"
+                 "${CMAKE_CURRENT_SOURCE_DIR}/Main.cpp"
                  "${CMAKE_CURRENT_SOURCE_DIR}/StandardPaths.cpp"
                  "${CMAKE_CURRENT_SOURCE_DIR}/String.cpp"
                  "${CMAKE_CURRENT_SOURCE_DIR}/Utility.cpp")

@@ -24,12 +24,22 @@ void assertStandardPaths(std::vector<std::filesystem::path> const& paths,
     }
 }
 
+void ensureDirectoriesExist(std::vector<std::filesystem::path> const& paths)
+{
+    for (auto const& path : paths)
+    {
+        if (!std::filesystem::is_directory(path))
+            std::filesystem::create_directories(path); // GCOVR_EXCL_LINE
+    }
+}
+
 TEST(StandardPaths, GetConfigDirectories)
 {
 #ifdef SCPPL_OS_LINUX
-    // Make sure "XDG_CONFIG_HOME" and "XDG_CONFIG_DIRS" are set
-    ::setenv("XDG_CONFIG_HOME",
-             (scppl::FileSystem::getHome() / ".cache").c_str(), 0);
+    // Make sure "XDG_CONFIG_DIRS" and "XDG_CONFIG_HOME" are set to existing
+    // (non-default) paths
+    ::setenv("XDG_CONFIG_DIRS", "/etc", 1);
+    ::setenv("XDG_CONFIG_HOME", "/home", 1);
 #endif
 
     assertStandardPaths(scppl::StandardPaths::getConfigDirectories(),
@@ -39,9 +49,13 @@ TEST(StandardPaths, GetConfigDirectories)
 #ifdef SCPPL_OS_LINUX
 TEST(StandardPaths, GetConfigDirectoriesFallback)
 {
-    // Make sure "XDG_CONFIG_HOME" and "XDG_CONFIG_DIRS" is unset
+    // Make sure "XDG_CONFIG_DIRS" and "XDG_CONFIG_HOME" are unset and the
+    // default directories exist
     ::unsetenv("XDG_CONFIG_HOME");
     ::unsetenv("XDG_CONFIG_DIRS");
+
+    ensureDirectoriesExist({ "/etc/xdg",
+                             scppl::FileSystem::getHome() / ".config" });
 
     assertStandardPaths(scppl::StandardPaths::getConfigDirectories(),
                         scppl::StandardPaths::ConfigDirectory);
@@ -51,9 +65,10 @@ TEST(StandardPaths, GetConfigDirectoriesFallback)
 TEST(StandardPaths, GetDataDirectories)
 {
 #ifdef SCPPL_OS_LINUX
-    // Make sure "XDG_CACHE_HOME" is set
-    ::setenv("XDG_CACHE_HOME",
-             (scppl::FileSystem::getHome() / ".cache").c_str(), 0);
+    // Make sure "XDG_DATA_DIRS" and "XDG_DATA_HOME" are set to existing
+    // (non-default) paths
+    ::setenv("XDG_DATA_DIRS", "/usr", 1);
+    ::setenv("XDG_DATA_HOME", "/home", 1);
 #endif
 
     assertStandardPaths(scppl::StandardPaths::getDataDirectories(),
@@ -63,9 +78,13 @@ TEST(StandardPaths, GetDataDirectories)
 #ifdef SCPPL_OS_LINUX
 TEST(StandardPaths, GetDataDirectoriesFallback)
 {
-    // Make sure "XDG_DATA_HOME" and "XDG_DATA_DIRS" is unset
-    ::unsetenv("XDG_DATA_HOME");
+    // Make sure "XDG_DATA_HOME" and "XDG_DATA_DIRS" are unset and the default
+    // directories exist
     ::unsetenv("XDG_DATA_DIRS");
+    ::unsetenv("XDG_DATA_HOME");
+
+    ensureDirectoriesExist({ "/usr/share", "/usr/local/share",
+                             scppl::FileSystem::getHome() / ".config" });
 
     assertStandardPaths(scppl::StandardPaths::getDataDirectories(),
                         scppl::StandardPaths::DataDirectory);
@@ -75,9 +94,8 @@ TEST(StandardPaths, GetDataDirectoriesFallback)
 TEST(StandardPaths, GetCacheDirectory)
 {
 #ifdef SCPPL_OS_LINUX
-    // Make sure "XDG_CACHE_HOME" is set
-    ::setenv("XDG_CACHE_HOME",
-             (scppl::FileSystem::getHome() / ".cache").c_str(), 0);
+    // Make sure "XDG_CACHE_HOME" is set to an existing (non-default) path
+    ::setenv("XDG_CACHE_HOME", "/home", 1);
 #endif
 
     assertStandardPaths({ scppl::StandardPaths::getCacheDirectory() },
@@ -87,20 +105,45 @@ TEST(StandardPaths, GetCacheDirectory)
 #ifdef SCPPL_OS_LINUX
 TEST(StandardPaths, GetCacheDirectoryFallback)
 {
-    // Make sure "XDG_CACHE_HOME" is unset
+    // Make sure "XDG_CACHE_HOME" is unset and the default directory exists
     ::unsetenv("XDG_CACHE_HOME");
+
+    ensureDirectoriesExist({ scppl::FileSystem::getHome() / ".cache" });
 
     assertStandardPaths({ scppl::StandardPaths::getCacheDirectory() },
                         scppl::StandardPaths::CacheDirectory);
 }
 #endif
 
+TEST(StandardPaths, GetStateDirectory)
+{
+#ifdef SCPPL_OS_LINUX
+    // Make sure "XDG_STATE_HOME" is set to an existing (non-default) path
+    ::setenv("XDG_STATE_HOME", "/home", 1);
+#endif
+
+    assertStandardPaths({ scppl::StandardPaths::getStateDirectory() },
+                        scppl::StandardPaths::StateDirectory);
+}
+
+#ifdef SCPPL_OS_LINUX
+TEST(StandardPaths, GetStateDirectoryFallback)
+{
+    // Make sure "XDG_STATE_HOME" is unset and the default directory exists
+    ::unsetenv("XDG_STATE_HOME");
+
+    ensureDirectoriesExist({ scppl::FileSystem::getHome() / ".local/state" });
+
+    assertStandardPaths({ scppl::StandardPaths::getStateDirectory() },
+                        scppl::StandardPaths::StateDirectory);
+}
+#endif
+
 TEST(StandardPaths, GetRuntimeDirectory)
 {
 #ifdef SCPPL_OS_LINUX
-    // Make sure "XDG_RUNTIME_DIR" is set (not a runtime directory, but good
-    // enough to test)
-    ::setenv("XDG_RUNTIME_DIR", "/etc", 0);
+    // Make sure "XDG_CACHE_HOME" is set to an existing (non-default) path
+    ::setenv("XDG_RUNTIME_DIR", "/tmp", 1);
 #endif
 
     assertStandardPaths({ scppl::StandardPaths::getRuntimeDirectory() },
@@ -115,28 +158,6 @@ TEST(StandardPaths, GetRuntimeDirectoryFallback)
 
     assertStandardPaths({ scppl::StandardPaths::getRuntimeDirectory() },
                         scppl::StandardPaths::RuntimeDirectory);
-}
-#endif
-
-TEST(StandardPaths, GetStateDirectory)
-{
-#ifdef SCPPL_OS_LINUX
-    ::setenv("XDG_CACHE_HOME",
-             (scppl::FileSystem::getHome() / ".cache").c_str(), 0);
-#endif
-
-    assertStandardPaths({ scppl::StandardPaths::getStateDirectory() },
-                        scppl::StandardPaths::StateDirectory);
-}
-
-#ifdef SCPPL_OS_LINUX
-TEST(StandardPaths, GetStateDirectoryFallback)
-{
-    // Make sure "XDG_STATE_HOME" is unset
-    ::unsetenv("XDG_STATE_HOME");
-
-    assertStandardPaths({ scppl::StandardPaths::getStateDirectory() },
-                        scppl::StandardPaths::StateDirectory);
 }
 #endif
 

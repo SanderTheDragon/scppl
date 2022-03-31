@@ -9,6 +9,7 @@ SanderTheDragon's C++ Libraries (scppl)
 The following libraries exist:
 
 - `scppl Binary <https://sanderthedragon.gitlab.io/scppl/binary/index.html>`_, a C++20 header-only library for packing, unpacking, encoding and decoding binary data.
+- `scppl OS <https://sanderthedragon.gitlab.io/scppl/os/index.html>`_, a C++20 library for OS related functions.
 
 Base documentation can be seen `here <https://sanderthedragon.gitlab.io/scppl/index.html>`_.
 
