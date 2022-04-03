@@ -4,8 +4,6 @@
 
 #include <array>
 #include <bit>
-#include <cstddef>
-#include <tuple>
 #include <type_traits>
 #include <vector>
 
@@ -19,10 +17,6 @@
 #include "Values.hpp"
 
 // NOLINTBEGIN(cppcoreguidelines-macro-usage): Macros required here
-#define DATA_NAME_LE(variable) variable ## DataLE
-#define DATA_NAME_BE(variable) variable ## DataBE
-#define TYPE_OF(variable) std::remove_const_t<decltype(variable)>
-
 #define ASSERT_UNPACKED_VALUES_EQUAL(endian, suffix, ...) \
     assertValuesEqual( \
         scppl::Binary<endian>::unpack<FOR_EACH(TYPE_OF, __VA_ARGS__)>( \
@@ -34,24 +28,6 @@
 #define ASSERT_UNPACKED_VALUES_EQUAL_BE(...) \
     ASSERT_UNPACKED_VALUES_EQUAL(std::endian::big, BE, __VA_ARGS__)
 // NOLINTEND(cppcoreguidelines-macro-usage)
-
-template<std::size_t I = 0, typename... Ts>
-requires(I == sizeof...(Ts))
-void assertValuesEqual(std::tuple<Ts...> /* values */,
-                       std::tuple<Ts...> /* expected */)
-{
-    //
-}
-
-template<std::size_t I = 0, typename... Ts>
-requires(I < sizeof...(Ts))
-void assertValuesEqual(std::tuple<Ts...> values,
-                       std::tuple<Ts...> expected)
-{
-    ASSERT_EQ(std::get<I>(values), std::get<I>(expected));
-
-    assertValuesEqual<I + 1>(values, expected);
-}
 
 TEST(BinaryUnpack, LittleEndianOneType)
 {
