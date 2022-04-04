@@ -66,6 +66,19 @@ concept InputStream = requires(StreamT<ByteT, Ts...> stream, ByteT* data)
     stream.read(data, std::declval<std::size_t>());
 };
 
+/**
+ * @brief Concept for an output stream type.
+ *
+ * @details A type is an output stream if it has a write function accepting a
+ *          pointer to it's underlying data type and a length.
+ */
+template<template<typename, typename...> typename StreamT,
+         typename ByteT, typename... Ts>
+concept OutputStream = requires(StreamT<ByteT, Ts...> stream, ByteT* data)
+{
+    stream.write(data, std::declval<std::size_t>());
+};
+
 }
 
 #endif

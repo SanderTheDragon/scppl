@@ -20,9 +20,9 @@
 #define ASSERT_INPUT_VALUES_EQUAL(endian, suffix, ...) \
     auto [ string, stream ] = toStream(FOR_EACH(DATA_NAME_ ## suffix, \
                                                 __VA_ARGS__)); \
-    assertValuesEqual(scppl::BinaryStream<endian>(stream) \
+    assertValuesEqual(scppl::BinaryInputStream<endian>(stream) \
                           .read<FOR_EACH(TYPE_OF, __VA_ARGS__)>(), \
-                      {__VA_ARGS__});
+                      {__VA_ARGS__})
 
 #define ASSERT_INPUT_VALUES_EQUAL_LE(...) \
     ASSERT_INPUT_VALUES_EQUAL(std::endian::little, LE, __VA_ARGS__)

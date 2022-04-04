@@ -70,9 +70,33 @@ public:
         return BinaryT::template unpack<Ts...>(readRaw<lengthOf<Ts...>()>());
     }
 
+    template<RangeOf<Byte> T>
+    requires(OutputStream<StreamT, Byte, StreamTs...>)
+    void writeRaw(T data)
+    {
+        mStream.write(std::ranges::data(data), std::ranges::size(data));
+    }
+
+    template<typename... Ts>
+    requires(OutputStream<StreamT, Byte, StreamTs...>)
+    void write(Ts... types)
+    {
+        writeRaw(BinaryT::template pack<Ts...>(types...));
+    }
+
 private:
     Stream& mStream{};
 };
+
+template<std::endian tEndian = std::endian::native,
+         template<typename, typename...> typename StreamT = std::basic_istream,
+         typename ByteT = char, typename... StreamTs>
+using BinaryInputStream = BinaryStream<tEndian, StreamT, ByteT, StreamTs...>;
+
+template<std::endian tEndian = std::endian::native,
+         template<typename, typename...> typename StreamT = std::basic_ostream,
+         typename ByteT = char, typename... StreamTs>
+using BinaryOutputStream = BinaryStream<tEndian, StreamT, ByteT, StreamTs...>;
 
 }
 

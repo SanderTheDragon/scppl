@@ -69,9 +69,23 @@ void assertValuesEqual(std::tuple<Ts...> values,
     assertValuesEqual<I + 1>(values, expected);
 }
 
+template<std::size_t N>
+void assertDataEqual(ByteArray<N> data, ByteArray<N> expected)
+{
+    for (std::size_t i = 0; i < N; ++i)
+        ASSERT_EQ(data.at(i), expected.at(i));
+}
+
+template<std::size_t N, std::size_t... Ns>
+requires((Ns + ...) == N)
+void assertDataEqual(ByteArray<N> data, ByteArray<Ns>... expected)
+{
+    assertDataEqual(data, combineArrays(expected...));
+}
+
 template<std::size_t... Ns>
 auto toStream(ByteArray<Ns>... input)
-    -> std::tuple<std::string, std::stringstream>
+    -> std::tuple<std::string, std::istringstream>
 {
     auto data = combineArrays(input...);
 
@@ -81,11 +95,22 @@ auto toStream(ByteArray<Ns>... input)
     std::ranges::copy(std::ranges::begin(data), std::ranges::end(data),
                       std::ranges::begin(string));
 
-    std::stringstream stream(string);
+    std::istringstream stream(string);
     stream.seekg(0);
-    stream.seekp(0);
 
     return { string, std::move(stream) };
+}
+
+template<std::size_t N>
+auto fromStream(std::ostringstream const& stream)
+    -> ByteArray<N>
+{
+    auto string = stream.str();
+    ByteArray<N> data{};
+    std::ranges::copy(std::ranges::begin(string), std::ranges::end(string),
+                      std::ranges::begin(data));
+
+    return data;
 }
 
 #endif

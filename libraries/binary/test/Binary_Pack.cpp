@@ -30,20 +30,6 @@
     ASSERT_PACKED_DATA_EQUAL(std::endian::big, BE, __VA_ARGS__)
 // NOLINTEND(cppcoreguidelines-macro-usage)
 
-template<std::size_t N>
-void assertDataEqual(ByteArray<N> data, ByteArray<N> expected)
-{
-    for (std::size_t i = 0; i < N; ++i)
-        ASSERT_EQ(data.at(i), expected.at(i));
-}
-
-template<std::size_t N, std::size_t... Ns>
-requires((Ns + ...) == N)
-void assertDataEqual(ByteArray<N> data, ByteArray<Ns>... expected)
-{
-    assertDataEqual(data, combineArrays(expected...));
-}
-
 TEST(BinaryPack, LittleEndianOneType)
 {
     ASSERT_PACKED_DATA_EQUAL_LE(A);
