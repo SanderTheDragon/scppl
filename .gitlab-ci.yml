@@ -20,6 +20,17 @@ build:
     paths:
       - "$CI_PROJECT_DIR/build"
 
+# Download the latest artifacts instead of rebuilding
+download:
+  stage: build
+  script:
+    - cd $CI_PROJECT_DIR
+    - curl -L -o build.zip "https://gitlab.com/$CI_MERGE_REQUEST_PROJECT_PATH/-/jobs/artifacts/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME/download?job=build"
+    - unzip build.zip
+  artifacts:
+    paths:
+      - "$CI_PROJECT_DIR/build"
+
 unit-test:
   stage: test
   dependencies:
@@ -48,11 +59,8 @@ coverage:
 
 clang-tidy:
   stage: test
-  needs:
-    - project: $CI_PROJECT_PATH
-      job: build
-      ref: $CI_MERGE_REQUEST_REF_PATH 
-      artifacts: true
+  dependencies:
+    - "download"
   script:
     - cd $CI_PROJECT_DIR
     - run-clang-tidy-14 -quiet -p $CI_PROJECT_DIR/build
@@ -61,11 +69,8 @@ clang-tidy:
 
 iwyu:
   stage: test
-  needs:
-    - project: $CI_PROJECT_PATH
-      job: build
-      ref: $CI_MERGE_REQUEST_REF_PATH 
-      artifacts: true
+  dependencies:
+    - "download"
   script:
     - cd $CI_PROJECT_DIR
     - iwyu_tool -o clang -p $CI_PROJECT_DIR/build -- -Xiwyu --mapping_file=$CI_PROJECT_DIR/cmake/tools/googletest.imp -I/usr/lib/clang/14/include
@@ -74,11 +79,8 @@ iwyu:
 
 memory:
   stage: test
-  needs:
-    - project: $CI_PROJECT_PATH
-      job: build
-      ref: $CI_MERGE_REQUEST_REF_PATH 
-      artifacts: true
+  dependencies:
+    - "download"
   script:
     - cd $CI_PROJECT_DIR/build
     - valgrind --leak-check=full --show-leak-kinds=all -s ctest
