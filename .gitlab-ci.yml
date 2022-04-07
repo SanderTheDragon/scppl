@@ -34,9 +34,10 @@ unit-test:
 coverage:
   stage: test
   dependencies:
-    - "unit-test"
+    - "build"
   script:
     - cd $CI_PROJECT_DIR/build
+    - ctest
     - gcovr -r $CI_PROJECT_DIR -x $CI_PROJECT_DIR/coverage.xml --exclude-lines-by-pattern "(\s+throw .+)|(.*GCOVR_EXCL_LINE.*)" --exclude-throw-branches --print-summary
   coverage: '/lines: \d+\.\d+%/'
   artifacts:
@@ -48,7 +49,7 @@ coverage:
 clang-tidy:
   stage: test
   dependencies:
-    - "unit-test"
+    - "build"
   script:
     - cd $CI_PROJECT_DIR
     - run-clang-tidy-14 -quiet -p $CI_PROJECT_DIR/build
@@ -58,7 +59,7 @@ clang-tidy:
 iwyu:
   stage: test
   dependencies:
-    - "unit-test"
+    - "build"
   script:
     - cd $CI_PROJECT_DIR
     - iwyu_tool -o clang -p $CI_PROJECT_DIR/build -- -Xiwyu --mapping_file=$CI_PROJECT_DIR/cmake/tools/googletest.imp -I/usr/lib/clang/14/include
