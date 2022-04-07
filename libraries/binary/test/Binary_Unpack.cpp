@@ -28,11 +28,13 @@ void unpackAndAssert(std::tuple<Ts...> expected, ByteArray<Ns>... datas)
     assertValuesEqual(values, expected);
 }
 
-constexpr auto unpackAndAssertLE = [](auto&&... args) -> void {
+constexpr auto unpackAndAssertLE = [](auto&&... args) -> void
+{
     unpackAndAssert<std::endian::little>(std::forward<decltype(args)>(args)...);
 };
 
-constexpr auto unpackAndAssertBE = [](auto&&... args) -> void {
+constexpr auto unpackAndAssertBE = [](auto&&... args) -> void
+{
     unpackAndAssert<std::endian::big>(std::forward<decltype(args)>(args)...);
 };
 

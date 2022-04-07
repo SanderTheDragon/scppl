@@ -43,11 +43,13 @@ void writeAndAssert(std::tuple<Ts...> values, ByteArray<Ns>... expected)
     assertDataEqual(data, expected...);
 }
 
-constexpr auto writeAndAssertLE = [](auto&&... args) -> void {
+constexpr auto writeAndAssertLE = [](auto&&... args) -> void
+{
     writeAndAssert<std::endian::little>(std::forward<decltype(args)>(args)...);
 };
 
-constexpr auto writeAndAssertBE = [](auto&&... args) -> void {
+constexpr auto writeAndAssertBE = [](auto&&... args) -> void
+{
     writeAndAssert<std::endian::big>(std::forward<decltype(args)>(args)...);
 };
 
