@@ -48,8 +48,11 @@ coverage:
 
 clang-tidy:
   stage: test
-  dependencies:
-    - "build"
+  needs:
+    - project: $CI_PROJECT_PATH
+      job: build
+      ref: $CI_EXTERNAL_PULL_REQUEST_SOURCE_BRANCH_NAME 
+      artifacts: true
   script:
     - cd $CI_PROJECT_DIR
     - run-clang-tidy-14 -quiet -p $CI_PROJECT_DIR/build
@@ -58,8 +61,11 @@ clang-tidy:
 
 iwyu:
   stage: test
-  dependencies:
-    - "build"
+  needs:
+    - project: $CI_PROJECT_PATH
+      job: build
+      ref: $CI_EXTERNAL_PULL_REQUEST_SOURCE_BRANCH_NAME 
+      artifacts: true
   script:
     - cd $CI_PROJECT_DIR
     - iwyu_tool -o clang -p $CI_PROJECT_DIR/build -- -Xiwyu --mapping_file=$CI_PROJECT_DIR/cmake/tools/googletest.imp -I/usr/lib/clang/14/include
@@ -68,8 +74,11 @@ iwyu:
 
 memory:
   stage: test
-  dependencies:
-    - "build"
+  needs:
+    - project: $CI_PROJECT_PATH
+      job: build
+      ref: $CI_EXTERNAL_PULL_REQUEST_SOURCE_BRANCH_NAME 
+      artifacts: true
   script:
     - cd $CI_PROJECT_DIR/build
     - valgrind --leak-check=full --show-leak-kinds=all -s ctest
