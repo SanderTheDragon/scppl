@@ -14,11 +14,24 @@ build:
   script:
     - mkdir $CI_PROJECT_DIR/build
     - cd $CI_PROJECT_DIR/build
-    - cmake .. -DSCPPL_LIBRARY_BINARY=ON -DSCPPL_LIBRARY_OS=ON -DSCPPL_TOOL_CLANG_TIDY=OFF -DSCPPL_TOOL_IWYU=OFF -DSCPPL_BUILD_DOCS=ON -DSCPPL_BUILD_TESTS=ON -DSCPPL_BUILD_COVERAGE=ON
+    - cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DSCPPL_LIBRARY_BINARY=ON -DSCPPL_LIBRARY_OS=ON -DSCPPL_TOOL_CLANG_TIDY=OFF -DSCPPL_TOOL_IWYU=OFF -DSCPPL_BUILD_DOCS=ON -DSCPPL_BUILD_TESTS=ON -DSCPPL_BUILD_COVERAGE=ON
     - make
   artifacts:
     paths:
       - "$CI_PROJECT_DIR/build"
+
+# Download the latest artifacts instead of rebuilding
+download:
+  stage: build
+  script:
+    - cd $CI_PROJECT_DIR
+    - curl -L -o build.zip "https://gitlab.com/$CI_MERGE_REQUEST_PROJECT_PATH/-/jobs/artifacts/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME/download?job=build"
+    - unzip build.zip
+  artifacts:
+    paths:
+      - "$CI_PROJECT_DIR/build"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 
 unit-test:
   stage: test
@@ -36,14 +49,53 @@ coverage:
   dependencies:
     - "build"
   script:
-    - pip3 install gcovr==5.0
     - cd $CI_PROJECT_DIR/build
     - ctest
     - gcovr -r $CI_PROJECT_DIR -x $CI_PROJECT_DIR/coverage.xml --exclude-lines-by-pattern "(\s+throw .+)|(.*GCOVR_EXCL_LINE.*)" --exclude-throw-branches --print-summary
   coverage: '/lines: \d+\.\d+%/'
   artifacts:
     reports:
-      cobertura: "coverage.xml"
+      coverage_report:
+        coverage_format: cobertura
+        path: "coverage.xml"
+
+clang-tidy:
+  stage: test
+  dependencies:
+    - "download"
+  script:
+    - cd $CI_PROJECT_DIR
+    - run-clang-tidy-14 -quiet -p $CI_PROJECT_DIR/build
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+
+iwyu:
+  stage: test
+  dependencies:
+    - "download"
+  script:
+    - cd $CI_PROJECT_DIR
+    - iwyu_tool -o clang -p $CI_PROJECT_DIR/build -- -Xiwyu --mapping_file=$CI_PROJECT_DIR/cmake/tools/googletest.imp -I/usr/lib/clang/14/include
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+
+memory:
+  stage: test
+  dependencies:
+    - "download"
+  script:
+    - cd $CI_PROJECT_DIR/build
+    - valgrind --leak-check=full --show-leak-kinds=all -s ctest
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+
+reuse:
+  stage: test
+  script:
+    - cd $CI_PROJECT_DIR
+    - reuse lint
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 
 pages:
   stage: deploy

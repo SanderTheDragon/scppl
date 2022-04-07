@@ -53,6 +53,40 @@ concept Packable = PackableTrait<T>::value;
 template<typename T>
 concept Unpackable = UnpackableTrait<T>::value;
 
+/**
+ * @brief Concept for an input stream type.
+ *
+ * @details A type is an input stream if it has a read function accepting a
+ *          pointer to it's underlying data type and a length.
+ *
+ * @tparam StreamT  The stream type to test.
+ * @tparam ByteT    The underlying type of the stream.
+ * @tparam Ts       Other stream parameters.
+ */
+template<template<typename, typename...> typename StreamT,
+         typename ByteT, typename... Ts>
+concept InputStream = requires(StreamT<ByteT, Ts...> stream, ByteT* data)
+{
+    stream.read(data, std::declval<std::size_t>());
+};
+
+/**
+ * @brief Concept for an output stream type.
+ *
+ * @details A type is an output stream if it has a write function accepting a
+ *          pointer to it's underlying data type and a length.
+ *
+ * @tparam StreamT  The stream type to test.
+ * @tparam ByteT    The underlying type of the stream.
+ * @tparam Ts       Other stream parameters.
+ */
+template<template<typename, typename...> typename StreamT,
+         typename ByteT, typename... Ts>
+concept OutputStream = requires(StreamT<ByteT, Ts...> stream, ByteT* data)
+{
+    stream.write(data, std::declval<std::size_t>());
+};
+
 }
 
 #endif

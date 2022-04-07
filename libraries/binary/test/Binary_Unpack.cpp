@@ -6,7 +6,7 @@
 #include <bit>
 #include <cstddef>
 #include <tuple>
-#include <type_traits>
+#include <utility>
 #include <vector>
 
 #include <gtest/gtest.h>
@@ -18,79 +18,68 @@
 #include "Utility.hpp"
 #include "Values.hpp"
 
-// NOLINTBEGIN(cppcoreguidelines-macro-usage): Macros required here
-#define DATA_NAME_LE(variable) variable ## DataLE
-#define DATA_NAME_BE(variable) variable ## DataBE
-#define TYPE_OF(variable) std::remove_const_t<decltype(variable)>
-
-#define ASSERT_UNPACKED_VALUES_EQUAL(endian, suffix, ...) \
-    assertValuesEqual( \
-        scppl::Binary<endian>::unpack<FOR_EACH(TYPE_OF, __VA_ARGS__)>( \
-            combineArrays(FOR_EACH(DATA_NAME_ ## suffix, __VA_ARGS__))), \
-                          {__VA_ARGS__})
-
-#define ASSERT_UNPACKED_VALUES_EQUAL_LE(...) \
-    ASSERT_UNPACKED_VALUES_EQUAL(std::endian::little, LE, __VA_ARGS__)
-#define ASSERT_UNPACKED_VALUES_EQUAL_BE(...) \
-    ASSERT_UNPACKED_VALUES_EQUAL(std::endian::big, BE, __VA_ARGS__)
-// NOLINTEND(cppcoreguidelines-macro-usage)
-
-template<std::size_t I = 0, typename... Ts>
-requires(I == sizeof...(Ts))
-void assertValuesEqual(std::tuple<Ts...> /* values */,
-                       std::tuple<Ts...> /* expected */)
+template<std::endian tEndian, typename... Ts, std::size_t... Ns>
+requires(sizeof...(Ts) == sizeof...(Ns))
+void unpackAndAssert(std::tuple<Ts...> expected, ByteArray<Ns>... datas)
 {
-    //
+    auto data = combineArrays(datas...);
+    auto values = scppl::Binary<tEndian>::template unpack<Ts...>(data);
+
+    assertValuesEqual(values, expected);
 }
 
-template<std::size_t I = 0, typename... Ts>
-requires(I < sizeof...(Ts))
-void assertValuesEqual(std::tuple<Ts...> values,
-                       std::tuple<Ts...> expected)
+constexpr auto unpackAndAssertLE = [](auto&&... args) -> void
 {
-    ASSERT_EQ(std::get<I>(values), std::get<I>(expected));
+    unpackAndAssert<std::endian::little>(std::forward<decltype(args)>(args)...);
+};
 
-    assertValuesEqual<I + 1>(values, expected);
-}
+constexpr auto unpackAndAssertBE = [](auto&&... args) -> void
+{
+    unpackAndAssert<std::endian::big>(std::forward<decltype(args)>(args)...);
+};
 
 TEST(BinaryUnpack, LittleEndianOneType)
 {
-    ASSERT_UNPACKED_VALUES_EQUAL_LE(A);
-    ASSERT_UNPACKED_VALUES_EQUAL_LE(B);
-    ASSERT_UNPACKED_VALUES_EQUAL_LE(C);
-    ASSERT_UNPACKED_VALUES_EQUAL_LE(D);
+    unpackAndAssertLE(std::tuple{A}, ADataLE);
+    unpackAndAssertLE(std::tuple{B}, BDataLE);
+    unpackAndAssertLE(std::tuple{C}, CDataLE);
+    unpackAndAssertLE(std::tuple{D}, DDataLE);
 }
 
 TEST(BinaryUnpack, LittleEndianTwoType)
 {
-    ASSERT_UNPACKED_VALUES_EQUAL_LE(A, B);
-    ASSERT_UNPACKED_VALUES_EQUAL_LE(B, C);
-    ASSERT_UNPACKED_VALUES_EQUAL_LE(C, D);
-    ASSERT_UNPACKED_VALUES_EQUAL_LE(D, A);
+    unpackAndAssertLE(std::tuple{A, B}, ADataLE, BDataLE);
+    unpackAndAssertLE(std::tuple{B, C}, BDataLE, CDataLE);
+    unpackAndAssertLE(std::tuple{C, D}, CDataLE, DDataLE);
+    unpackAndAssertLE(std::tuple{D, A}, DDataLE, ADataLE);
 }
 
 TEST(BinaryUnpack, LittleEndianThreeType)
 {
-    ASSERT_UNPACKED_VALUES_EQUAL_LE(A, B, C);
-    ASSERT_UNPACKED_VALUES_EQUAL_LE(B, C, D);
-    ASSERT_UNPACKED_VALUES_EQUAL_LE(C, D, A);
-    ASSERT_UNPACKED_VALUES_EQUAL_LE(D, A, B);
+    unpackAndAssertLE(std::tuple{A, B, C}, ADataLE, BDataLE, CDataLE);
+    unpackAndAssertLE(std::tuple{B, C, D}, BDataLE, CDataLE, DDataLE);
+    unpackAndAssertLE(std::tuple{C, D, A}, CDataLE, DDataLE, ADataLE);
+    unpackAndAssertLE(std::tuple{D, A, B}, DDataLE, ADataLE, BDataLE);
 }
 
 TEST(BinaryUnpack, LittleEndianFourType)
 {
-    ASSERT_UNPACKED_VALUES_EQUAL_LE(A, B, C, D);
-    ASSERT_UNPACKED_VALUES_EQUAL_LE(B, C, D, A);
-    ASSERT_UNPACKED_VALUES_EQUAL_LE(C, D, A, B);
-    ASSERT_UNPACKED_VALUES_EQUAL_LE(D, A, B, C);
+    unpackAndAssertLE(std::tuple{A, B, C, D},
+                      ADataLE, BDataLE, CDataLE, DDataLE);
+    unpackAndAssertLE(std::tuple{B, C, D, A},
+                      BDataLE, CDataLE, DDataLE, ADataLE);
+    unpackAndAssertLE(std::tuple{C, D, A, B},
+                      CDataLE, DDataLE, ADataLE, BDataLE);
+    unpackAndAssertLE(std::tuple{D, A, B, C},
+                      DDataLE, ADataLE, BDataLE, CDataLE);
 }
 
 TEST(BinaryUnpack, LittleEndianArray)
 {
-    ASSERT_UNPACKED_VALUES_EQUAL_LE(AArray);
-    ASSERT_UNPACKED_VALUES_EQUAL_LE(BArray);
-    ASSERT_UNPACKED_VALUES_EQUAL_LE(CArray);
-    ASSERT_UNPACKED_VALUES_EQUAL_LE(DArray);
+    unpackAndAssertLE(std::tuple{AArray}, AArrayDataLE);
+    unpackAndAssertLE(std::tuple{BArray}, BArrayDataLE);
+    unpackAndAssertLE(std::tuple{CArray}, CArrayDataLE);
+    unpackAndAssertLE(std::tuple{DArray}, DArrayDataLE);
 }
 
 TEST(BinaryUnpack, LittleEndianStruct)
@@ -98,8 +87,8 @@ TEST(BinaryUnpack, LittleEndianStruct)
     if constexpr(std::endian::native == std::endian::little ||
                  SCPPL_CONFIG_BINARY_USE_PFR)
     {
-        ASSERT_UNPACKED_VALUES_EQUAL_LE(AB);
-        ASSERT_UNPACKED_VALUES_EQUAL_LE(CD);
+        unpackAndAssertLE(std::tuple{AB}, ABDataLE);
+        unpackAndAssertLE(std::tuple{CD}, CDDataLE);
     }
 }
 
@@ -108,7 +97,7 @@ TEST(BinaryUnpack, LittleEndianStructStruct)
     if constexpr(std::endian::native == std::endian::little ||
                  SCPPL_CONFIG_BINARY_USE_PFR)
     {
-        ASSERT_UNPACKED_VALUES_EQUAL_LE(AB_CD);
+        unpackAndAssertLE(std::tuple{AB_CD}, AB_CDDataLE);
     }
 }
 
@@ -117,7 +106,7 @@ TEST(BinaryUnpack, LittleEndianStructArray)
     if constexpr(std::endian::native == std::endian::little ||
                  SCPPL_CONFIG_BINARY_USE_PFR)
     {
-        ASSERT_UNPACKED_VALUES_EQUAL_LE(AB_CDArray);
+        unpackAndAssertLE(std::tuple{AB_CDArray}, AB_CDArrayDataLE);
     }
 }
 
@@ -126,7 +115,7 @@ TEST(BinaryUnpack, LittleEndianArrayStruct)
     if constexpr(std::endian::native == std::endian::little ||
                  SCPPL_CONFIG_BINARY_USE_PFR)
     {
-        ASSERT_UNPACKED_VALUES_EQUAL_LE(ABCDArray);
+        unpackAndAssertLE(std::tuple{ABCDArray}, ABCDArrayDataLE);
     }
 }
 
@@ -135,48 +124,52 @@ TEST(BinaryUnpack, LittleEndianArrayStructArray)
     if constexpr(std::endian::native == std::endian::little ||
                  SCPPL_CONFIG_BINARY_USE_PFR)
     {
-        ASSERT_UNPACKED_VALUES_EQUAL_LE(ABCDArrayArray);
+        unpackAndAssertLE(std::tuple{ABCDArrayArray}, ABCDArrayArrayDataLE);
     }
 }
 
 TEST(BinaryUnpack, BigEndianOneType)
 {
-    ASSERT_UNPACKED_VALUES_EQUAL_BE(A);
-    ASSERT_UNPACKED_VALUES_EQUAL_BE(B);
-    ASSERT_UNPACKED_VALUES_EQUAL_BE(C);
-    ASSERT_UNPACKED_VALUES_EQUAL_BE(D);
+    unpackAndAssertBE(std::tuple{A}, ADataBE);
+    unpackAndAssertBE(std::tuple{B}, BDataBE);
+    unpackAndAssertBE(std::tuple{C}, CDataBE);
+    unpackAndAssertBE(std::tuple{D}, DDataBE);
 }
 
 TEST(BinaryUnpack, BigEndianTwoType)
 {
-    ASSERT_UNPACKED_VALUES_EQUAL_BE(A, B);
-    ASSERT_UNPACKED_VALUES_EQUAL_BE(B, C);
-    ASSERT_UNPACKED_VALUES_EQUAL_BE(C, D);
-    ASSERT_UNPACKED_VALUES_EQUAL_BE(D, A);
+    unpackAndAssertBE(std::tuple{A, B}, ADataBE, BDataBE);
+    unpackAndAssertBE(std::tuple{B, C}, BDataBE, CDataBE);
+    unpackAndAssertBE(std::tuple{C, D}, CDataBE, DDataBE);
+    unpackAndAssertBE(std::tuple{D, A}, DDataBE, ADataBE);
 }
 
 TEST(BinaryUnpack, BigEndianThreeType)
 {
-    ASSERT_UNPACKED_VALUES_EQUAL_BE(A, B, C);
-    ASSERT_UNPACKED_VALUES_EQUAL_BE(B, C, D);
-    ASSERT_UNPACKED_VALUES_EQUAL_BE(C, D, A);
-    ASSERT_UNPACKED_VALUES_EQUAL_BE(D, A, B);
+    unpackAndAssertBE(std::tuple{A, B, C}, ADataBE, BDataBE, CDataBE);
+    unpackAndAssertBE(std::tuple{B, C, D}, BDataBE, CDataBE, DDataBE);
+    unpackAndAssertBE(std::tuple{C, D, A}, CDataBE, DDataBE, ADataBE);
+    unpackAndAssertBE(std::tuple{D, A, B}, DDataBE, ADataBE, BDataBE);
 }
 
 TEST(BinaryUnpack, BigEndianFourType)
 {
-    ASSERT_UNPACKED_VALUES_EQUAL_BE(A, B, C, D);
-    ASSERT_UNPACKED_VALUES_EQUAL_BE(B, C, D, A);
-    ASSERT_UNPACKED_VALUES_EQUAL_BE(C, D, A, B);
-    ASSERT_UNPACKED_VALUES_EQUAL_BE(D, A, B, C);
+    unpackAndAssertBE(std::tuple{A, B, C, D},
+                      ADataBE, BDataBE, CDataBE, DDataBE);
+    unpackAndAssertBE(std::tuple{B, C, D, A},
+                      BDataBE, CDataBE, DDataBE, ADataBE);
+    unpackAndAssertBE(std::tuple{C, D, A, B},
+                      CDataBE, DDataBE, ADataBE, BDataBE);
+    unpackAndAssertBE(std::tuple{D, A, B, C},
+                      DDataBE, ADataBE, BDataBE, CDataBE);
 }
 
 TEST(BinaryUnpack, BigEndianArray)
 {
-    ASSERT_UNPACKED_VALUES_EQUAL_BE(AArray);
-    ASSERT_UNPACKED_VALUES_EQUAL_BE(BArray);
-    ASSERT_UNPACKED_VALUES_EQUAL_BE(CArray);
-    ASSERT_UNPACKED_VALUES_EQUAL_BE(DArray);
+    unpackAndAssertBE(std::tuple{AArray}, AArrayDataBE);
+    unpackAndAssertBE(std::tuple{BArray}, BArrayDataBE);
+    unpackAndAssertBE(std::tuple{CArray}, CArrayDataBE);
+    unpackAndAssertBE(std::tuple{DArray}, DArrayDataBE);
 }
 
 TEST(BinaryUnpack, BigEndianStruct)
@@ -184,8 +177,8 @@ TEST(BinaryUnpack, BigEndianStruct)
     if constexpr(std::endian::native == std::endian::big ||
                  SCPPL_CONFIG_BINARY_USE_PFR)
     {
-        ASSERT_UNPACKED_VALUES_EQUAL_BE(AB);
-        ASSERT_UNPACKED_VALUES_EQUAL_BE(CD);
+        unpackAndAssertBE(std::tuple{AB}, ABDataBE);
+        unpackAndAssertBE(std::tuple{CD}, CDDataBE);
     }
 }
 
@@ -194,7 +187,7 @@ TEST(BinaryUnpack, BigEndianStructStruct)
     if constexpr(std::endian::native == std::endian::big ||
                  SCPPL_CONFIG_BINARY_USE_PFR)
     {
-        ASSERT_UNPACKED_VALUES_EQUAL_BE(AB_CD);
+        unpackAndAssertBE(std::tuple{AB_CD}, AB_CDDataBE);
     }
 }
 
@@ -203,7 +196,7 @@ TEST(BinaryUnpack, BigEndianStructArray)
     if constexpr(std::endian::native == std::endian::big ||
                  SCPPL_CONFIG_BINARY_USE_PFR)
     {
-        ASSERT_UNPACKED_VALUES_EQUAL_BE(AB_CDArray);
+        unpackAndAssertBE(std::tuple{AB_CD}, AB_CDDataBE);
     }
 }
 
@@ -212,7 +205,7 @@ TEST(BinaryUnpack, BigEndianArrayStruct)
     if constexpr(std::endian::native == std::endian::big ||
                  SCPPL_CONFIG_BINARY_USE_PFR)
     {
-        ASSERT_UNPACKED_VALUES_EQUAL_BE(ABCDArray);
+        unpackAndAssertBE(std::tuple{ABCDArray}, ABCDArrayDataBE);
     }
 }
 
@@ -221,6 +214,6 @@ TEST(BinaryUnpack, BigEndianArrayStructArray)
     if constexpr(std::endian::native == std::endian::big ||
                  SCPPL_CONFIG_BINARY_USE_PFR)
     {
-        ASSERT_UNPACKED_VALUES_EQUAL_BE(ABCDArrayArray);
+        unpackAndAssertBE(std::tuple{ABCDArrayArray}, ABCDArrayArrayDataBE);
     }
 }

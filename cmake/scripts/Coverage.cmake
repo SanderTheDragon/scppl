@@ -5,7 +5,7 @@
 macro(add_coverage AC_TARGET)
     if(SCPPL_BUILD_COVERAGE)
         target_compile_options(${AC_TARGET}
-                               PUBLIC --coverage -fno-inline -fno-inline-small-functions -fno-default-inline -g -O0)
+                               PUBLIC --coverage -fno-inline -g -O0)
 
         target_link_options(${AC_TARGET}
                             PUBLIC --coverage)

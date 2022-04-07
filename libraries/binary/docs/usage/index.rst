@@ -10,3 +10,4 @@ Usage
 
    packing_unpacking.rst
    encoding_decoding.rst
+   streams.rst

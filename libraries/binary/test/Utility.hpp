@@ -14,21 +14,6 @@
 
 #include "Types.hpp"
 
-// NOLINTBEGIN(cppcoreguidelines-macro-usage): Macros required here
-#define PARENTHESES ()
-
-#define EXPAND(...) EXPAND_HELPER(EXPAND_HELPER(EXPAND_HELPER(__VA_ARGS__)))
-#define EXPAND_HELPER(...) EXPAND_HELPER_HELPER(__VA_ARGS__)
-#define EXPAND_HELPER_HELPER(...) __VA_ARGS__
-
-#define FOR_EACH(macro, ...) \
-    __VA_OPT__(EXPAND(FOR_EACH_HELPER(macro, __VA_ARGS__)))
-#define FOR_EACH_HELPER(macro, first, ...) \
-    macro(first) \
-    __VA_OPT__(, FOR_EACH_AGAIN PARENTHESES (macro, __VA_ARGS__))
-#define FOR_EACH_AGAIN() FOR_EACH_HELPER
-// NOLINTEND(cppcoreguidelines-macro-usage)
-
 template<std::size_t... Ns>
 constexpr auto combineArrays(ByteArray<Ns>... arrays)
     -> ByteArray<(Ns + ...)>
@@ -44,6 +29,55 @@ constexpr auto combineArrays(ByteArray<Ns>... arrays)
     (append.template operator()<Ns>(arrays), ...);
 
     return result;
+}
+
+template<std::size_t I = 0, typename... Ts>
+requires(I == sizeof...(Ts))
+void assertValuesEqual(std::tuple<Ts...> /* values */,
+                       std::tuple<Ts...> /* expected */)
+{
+    //
+}
+
+template<std::size_t I = 0, typename... Ts>
+requires(I < sizeof...(Ts))
+void assertValuesEqual(std::tuple<Ts...> values,
+                       std::tuple<Ts...> expected)
+{
+    ASSERT_EQ(std::get<I>(values), std::get<I>(expected));
+
+    assertValuesEqual<I + 1>(values, expected);
+}
+
+template<typename CharT>
+void assertStringEqual(std::basic_string<CharT> string,
+                       std::basic_string<CharT> expected)
+{
+    ASSERT_EQ(std::ranges::size(string), std::ranges::size(expected));
+    for (std::size_t i = 0; i < std::ranges::size(string); ++i)
+        ASSERT_EQ(string.at(i), expected.at(i));
+}
+
+template<std::size_t N>
+void assertDataEqual(ByteArray<N> data, ByteArray<N> expected)
+{
+    for (std::size_t i = 0; i < N; ++i)
+        ASSERT_EQ(data.at(i), expected.at(i));
+}
+
+template<std::size_t N, std::size_t... Ns>
+requires((Ns + ...) == N)
+void assertDataEqual(ByteArray<N> data, ByteArray<Ns>... expected)
+{
+    assertDataEqual(data, combineArrays(expected...));
+}
+
+template<std::size_t N>
+void assertDataEqual(std::vector<char> data, ByteArray<N> expected)
+{
+    ASSERT_EQ(std::ranges::size(data), N);
+    for (std::size_t i = 0; i < N; ++i)
+        ASSERT_EQ(data.at(i), expected.at(i));
 }
 
 #endif

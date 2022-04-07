@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include <cstddef>
-#include <ranges>
 #include <string>
 #include <string_view>
 
@@ -13,27 +12,26 @@
 
 #include "Data.hpp"
 #include "Types.hpp"
+#include "Utility.hpp"
 #include "Values.hpp"
 
 template<typename CharT, std::size_t N>
-void decodeAndAssert(ByteArray<N> data,
+void decodeAndAssert(std::basic_string<CharT> expected,
                      std::string_view encoding,
-                     std::basic_string_view<CharT> expected)
+                     ByteArray<N> data)
 {
     auto string = scppl::BinaryString<char, CharT>::decode(data, encoding);
 
-    ASSERT_EQ(std::ranges::size(string), std::ranges::size(expected));
-    for (std::size_t i = 0; i < std::ranges::size(string); ++i)
-        ASSERT_EQ(string.at(i), expected.at(i));
+    assertStringEqual(string, expected);
 }
 
 TEST(BinaryStringDecode, ENChar8)
 {
     if constexpr(SCPPL_CONFIG_BINARY_USE_ICU)
     {
-        decodeAndAssert<char8_t>(ENTextASCIIData, "ASCII", ENChar8Text);
-        decodeAndAssert<char8_t>(ENTextUTF8Data, "UTF-8", ENChar8Text);
-        decodeAndAssert<char8_t>(ENTextUTF16Data, "UTF-16", ENChar8Text);
+        decodeAndAssert(ENChar8Text, "ASCII", ENTextASCIIData);
+        decodeAndAssert(ENChar8Text, "UTF-8", ENTextUTF8Data);
+        decodeAndAssert(ENChar8Text, "UTF-16", ENTextUTF16Data);
     }
 }
 
@@ -41,9 +39,9 @@ TEST(BinaryStringDecode, ENChar16)
 {
     if constexpr(SCPPL_CONFIG_BINARY_USE_ICU)
     {
-        decodeAndAssert<char16_t>(ENTextASCIIData, "ASCII", ENChar16Text);
-        decodeAndAssert<char16_t>(ENTextUTF8Data, "UTF-8", ENChar16Text);
-        decodeAndAssert<char16_t>(ENTextUTF16Data, "UTF-16", ENChar16Text);
+        decodeAndAssert(ENChar16Text, "ASCII", ENTextASCIIData);
+        decodeAndAssert(ENChar16Text, "UTF-8", ENTextUTF8Data);
+        decodeAndAssert(ENChar16Text, "UTF-16", ENTextUTF16Data);
     }
 }
 
@@ -51,9 +49,9 @@ TEST(BinaryStringDecode, ENChar32)
 {
     if constexpr(SCPPL_CONFIG_BINARY_USE_ICU)
     {
-        decodeAndAssert<char32_t>(ENTextASCIIData, "ASCII", ENChar32Text);
-        decodeAndAssert<char32_t>(ENTextUTF8Data, "UTF-8", ENChar32Text);
-        decodeAndAssert<char32_t>(ENTextUTF16Data, "UTF-16", ENChar32Text);
+        decodeAndAssert(ENChar32Text, "ASCII", ENTextASCIIData);
+        decodeAndAssert(ENChar32Text, "UTF-8", ENTextUTF8Data);
+        decodeAndAssert(ENChar32Text, "UTF-16", ENTextUTF16Data);
     }
 }
 
@@ -61,9 +59,9 @@ TEST(BinaryStringDecode, JPChar8)
 {
     if constexpr(SCPPL_CONFIG_BINARY_USE_ICU)
     {
-        decodeAndAssert<char8_t>(JPTextShiftJISData, "Shift-JIS", JPChar8Text);
-        decodeAndAssert<char8_t>(JPTextUTF8Data, "UTF-8", JPChar8Text);
-        decodeAndAssert<char8_t>(JPTextUTF16Data, "UTF-16", JPChar8Text);
+        decodeAndAssert(JPChar8Text, "Shift-JIS", JPTextShiftJISData);
+        decodeAndAssert(JPChar8Text, "UTF-8", JPTextUTF8Data);
+        decodeAndAssert(JPChar8Text, "UTF-16", JPTextUTF16Data);
     }
 }
 
@@ -71,11 +69,9 @@ TEST(BinaryStringDecode, JPChar16)
 {
     if constexpr(SCPPL_CONFIG_BINARY_USE_ICU)
     {
-        decodeAndAssert<char16_t>(JPTextShiftJISData, "Shift-JIS",
-                                  JPChar16Text);
-
-        decodeAndAssert<char16_t>(JPTextUTF8Data, "UTF-8", JPChar16Text);
-        decodeAndAssert<char16_t>(JPTextUTF16Data, "UTF-16", JPChar16Text);
+        decodeAndAssert(JPChar16Text, "Shift-JIS", JPTextShiftJISData);
+        decodeAndAssert(JPChar16Text, "UTF-8", JPTextUTF8Data);
+        decodeAndAssert(JPChar16Text, "UTF-16", JPTextUTF16Data);
     }
 }
 
@@ -83,10 +79,8 @@ TEST(BinaryStringDecode, JPChar32)
 {
     if constexpr(SCPPL_CONFIG_BINARY_USE_ICU)
     {
-        decodeAndAssert<char32_t>(JPTextShiftJISData, "Shift-JIS",
-                                  JPChar32Text);
-
-        decodeAndAssert<char32_t>(JPTextUTF8Data, "UTF-8", JPChar32Text);
-        decodeAndAssert<char32_t>(JPTextUTF16Data, "UTF-16", JPChar32Text);
+        decodeAndAssert(JPChar32Text, "Shift-JIS", JPTextShiftJISData);
+        decodeAndAssert(JPChar32Text, "UTF-8", JPTextUTF8Data);
+        decodeAndAssert(JPChar32Text, "UTF-16", JPTextUTF16Data);
     }
 }

@@ -10,3 +10,4 @@ Classes
 
    binary.rst
    binary_string.rst
+   binary_stream.rst
