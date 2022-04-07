@@ -75,6 +75,14 @@ memory:
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 
+reuse:
+  stage: test
+  script:
+    - cd $CI_PROJECT_DIR
+    - reuse lint
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+
 pages:
   stage: deploy
   dependencies:
