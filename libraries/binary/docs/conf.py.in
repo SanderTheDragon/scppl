@@ -58,6 +58,7 @@ role_mapping.update({
 
 reference_mapping = {
     'Binary class': 'classes/binary',
+    'BinaryStream class': 'classes/binary_stream',
     'BinaryString class': 'classes/binary_string'
 }
 

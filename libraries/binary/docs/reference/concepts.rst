@@ -31,3 +31,13 @@ Packable
 Unpackable
 **********
 .. doxygenconcept:: scppl::Unpackable
+
+***********
+InputStream
+***********
+.. doxygenconcept:: scppl::InputStream
+
+************
+OutputStream
+************
+.. doxygenconcept:: scppl::OutputStream

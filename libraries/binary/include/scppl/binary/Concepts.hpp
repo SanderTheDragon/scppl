@@ -58,6 +58,10 @@ concept Unpackable = UnpackableTrait<T>::value;
  *
  * @details A type is an input stream if it has a read function accepting a
  *          pointer to it's underlying data type and a length.
+ *
+ * @tparam StreamT  The stream type to test.
+ * @tparam ByteT    The underlying type of the stream.
+ * @tparam Ts       Other stream parameters.
  */
 template<template<typename, typename...> typename StreamT,
          typename ByteT, typename... Ts>
@@ -71,6 +75,10 @@ concept InputStream = requires(StreamT<ByteT, Ts...> stream, ByteT* data)
  *
  * @details A type is an output stream if it has a write function accepting a
  *          pointer to it's underlying data type and a length.
+ *
+ * @tparam StreamT  The stream type to test.
+ * @tparam ByteT    The underlying type of the stream.
+ * @tparam Ts       Other stream parameters.
  */
 template<template<typename, typename...> typename StreamT,
          typename ByteT, typename... Ts>
