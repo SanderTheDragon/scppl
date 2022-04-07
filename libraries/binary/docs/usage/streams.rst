@@ -28,8 +28,12 @@ Reading
 Reading is done by calling ``read`` with the types to read as template parameters (just like calling ``scppl::Binary<>::unpack``).
 The total length of the types is read from the stream and then unpacked.
 
+It is also possible to read a string using ``readString``, this requires a length and encoding as arguments.
+
 =======
 Writing
 =======
 Writing is done by calling ``write`` with the types to write as arguments (just like calling ``scppl::Binary<>::pack``).
 The data is written to the stream after packing.
+
+It is also possible to write a string using ``writeString``, this requires a string and encoding as arguments.

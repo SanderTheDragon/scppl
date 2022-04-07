@@ -8,8 +8,9 @@
 #include <cstddef>
 #include <functional>
 #include <iosfwd>
-#include <memory>
 #include <ranges>
+#include <string>
+#include <string_view>
 #include <tuple>
 #include <utility>
 
@@ -22,23 +23,30 @@
 #include "Utility.hpp"
 #include "Values.hpp"
 
+template<std::size_t N>
+auto fromStream(std::ostringstream& stringstream)
+    -> ByteArray<N>
+{
+    ByteArray<N> data{};
+
+    auto string = stringstream.str();
+    std::ranges::copy(std::ranges::begin(string), std::ranges::end(string),
+                      std::ranges::begin(data));
+
+    return data;
+}
+
 template<std::endian tEndian, typename... Ts, std::size_t... Ns>
 requires(sizeof...(Ts) == sizeof...(Ns))
 void writeAndAssert(std::tuple<Ts...> values, ByteArray<Ns>... expected)
 {
     std::ostringstream stringstream{};
-
     scppl::BinaryOutputStream<tEndian> stream(stringstream);
     std::apply(std::bind_front(&decltype(stream)::template write<Ts...>,
                                stream),
                 values);
 
-    auto string = stringstream.str();
-
-    ByteArray<(Ns + ...)> data{};
-
-    std::ranges::copy(std::ranges::begin(string), std::ranges::end(string),
-                      std::ranges::begin(data));
+    auto data = fromStream<(Ns + ...)>(stringstream);
 
     assertDataEqual(data, expected...);
 }
@@ -52,6 +60,20 @@ constexpr auto writeAndAssertBE = [](auto&&... args) -> void
 {
     writeAndAssert<std::endian::big>(std::forward<decltype(args)>(args)...);
 };
+
+template<typename CharT, std::size_t... Ns>
+void writeStringAndAssert(std::basic_string<CharT> string,
+                          std::string_view encoding,
+                          ByteArray<Ns>... expected)
+{
+    std::ostringstream stringstream{};
+    scppl::BinaryOutputStream<> stream(stringstream);
+    stream.writeString<CharT>(string, encoding);
+
+    auto data = fromStream<(Ns + ...)>(stringstream);
+
+    assertDataEqual(data, expected...);
+}
 
 TEST(BinaryStreamOutput, LittleEndianWriteType)
 {
@@ -85,4 +107,36 @@ TEST(BinaryStreamOutput, BigEndianWriteArray)
 TEST(BinaryStreamOutput, BigEndianWriteStruct)
 {
     writeAndAssertBE(std::tuple{AB_CD}, AB_CDDataBE);
+}
+
+TEST(BinaryStreamOutput, WriteStringENUTF8)
+{
+    if constexpr(SCPPL_CONFIG_BINARY_USE_ICU)
+    {
+        writeStringAndAssert(ENChar8Text, "UTF-8", ENTextUTF8Data);
+    }
+}
+
+TEST(BinaryStreamOutput, WriteStringENASCII)
+{
+    if constexpr(SCPPL_CONFIG_BINARY_USE_ICU)
+    {
+        writeStringAndAssert(ENChar8Text, "ASCII", ENTextASCIIData);
+    }
+}
+
+TEST(BinaryStreamOutput, WriteStringJPUTF8)
+{
+    if constexpr(SCPPL_CONFIG_BINARY_USE_ICU)
+    {
+        writeStringAndAssert(JPChar8Text, "UTF-8", JPTextUTF8Data);
+    }
+}
+
+TEST(BinaryStreamOutput, WriteStringJPShiftJIS)
+{
+    if constexpr(SCPPL_CONFIG_BINARY_USE_ICU)
+    {
+        writeStringAndAssert(JPChar8Text, "Shift-JIS", JPTextShiftJISData);
+    }
 }

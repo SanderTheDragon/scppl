@@ -9,6 +9,7 @@
 #include <istream>
 #include <ranges>
 #include <string>
+#include <string_view>
 #include <tuple>
 #include <utility>
 
@@ -21,9 +22,9 @@
 #include "Utility.hpp"
 #include "Values.hpp"
 
-template<std::endian tEndian, typename... Ts, std::size_t... Ns>
-requires(sizeof...(Ts) == sizeof...(Ns))
-void readAndAssert(std::tuple<Ts...> expected, ByteArray<Ns>... datas)
+template<std::size_t... Ns>
+auto toStream(ByteArray<Ns>... datas)
+    -> std::istringstream
 {
     auto data = combineArrays(datas...);
 
@@ -36,6 +37,14 @@ void readAndAssert(std::tuple<Ts...> expected, ByteArray<Ns>... datas)
     std::istringstream stringstream(string);
     stringstream.seekg(0);
 
+    return std::move(stringstream);
+}
+
+template<std::endian tEndian, typename... Ts, std::size_t... Ns>
+requires(sizeof...(Ts) == sizeof...(Ns))
+void readAndAssert(std::tuple<Ts...> expected, ByteArray<Ns>... datas)
+{
+    auto stringstream = toStream(datas...);
     scppl::BinaryInputStream<tEndian> stream(stringstream);
     auto values = stream.template read<Ts...>();
 
@@ -51,6 +60,18 @@ constexpr auto readAndAssertBE = [](auto&&... args) -> void
 {
     readAndAssert<std::endian::big>(std::forward<decltype(args)>(args)...);
 };
+
+template<typename CharT, std::size_t... Ns>
+void readStringAndAssert(std::basic_string<CharT> expected,
+                         std::string_view encoding,
+                         ByteArray<Ns>... datas)
+{
+    auto stringstream = toStream(datas...);
+    scppl::BinaryInputStream<> stream(stringstream);
+    auto string = stream.readString<CharT>((Ns + ...), encoding);
+
+    assertStringEqual(string, expected);
+}
 
 TEST(BinaryStreamInput, LittleEndianReadType)
 {
@@ -84,4 +105,36 @@ TEST(BinaryStreamInput, BigEndianReadArray)
 TEST(BinaryStreamInput, BigEndianReadStruct)
 {
     readAndAssertBE(std::tuple{AB_CD}, AB_CDDataBE);
+}
+
+TEST(BinaryStreamInput, ReadStringENUTF8)
+{
+    if constexpr(SCPPL_CONFIG_BINARY_USE_ICU)
+    {
+        readStringAndAssert(ENChar8Text, "UTF-8", ENTextUTF8Data);
+    }
+}
+
+TEST(BinaryStreamInput, ReadStringENASCII)
+{
+    if constexpr(SCPPL_CONFIG_BINARY_USE_ICU)
+    {
+        readStringAndAssert(ENChar8Text, "ASCII", ENTextASCIIData);
+    }
+}
+
+TEST(BinaryStreamInput, ReadStringJPUTF8)
+{
+    if constexpr(SCPPL_CONFIG_BINARY_USE_ICU)
+    {
+        readStringAndAssert(JPChar8Text, "UTF-8", JPTextUTF8Data);
+    }
+}
+
+TEST(BinaryStreamInput, ReadStringJPShiftJIS)
+{
+    if constexpr(SCPPL_CONFIG_BINARY_USE_ICU)
+    {
+        readStringAndAssert(JPChar8Text, "Shift-JIS", JPTextShiftJISData);
+    }
 }

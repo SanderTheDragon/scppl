@@ -49,6 +49,15 @@ void assertValuesEqual(std::tuple<Ts...> values,
     assertValuesEqual<I + 1>(values, expected);
 }
 
+template<typename CharT>
+void assertStringEqual(std::basic_string<CharT> string,
+                       std::basic_string<CharT> expected)
+{
+    ASSERT_EQ(std::ranges::size(string), std::ranges::size(expected));
+    for (std::size_t i = 0; i < std::ranges::size(string); ++i)
+        ASSERT_EQ(string.at(i), expected.at(i));
+}
+
 template<std::size_t N>
 void assertDataEqual(ByteArray<N> data, ByteArray<N> expected)
 {
@@ -61,6 +70,14 @@ requires((Ns + ...) == N)
 void assertDataEqual(ByteArray<N> data, ByteArray<Ns>... expected)
 {
     assertDataEqual(data, combineArrays(expected...));
+}
+
+template<std::size_t N>
+void assertDataEqual(std::vector<char> data, ByteArray<N> expected)
+{
+    ASSERT_EQ(std::ranges::size(data), N);
+    for (std::size_t i = 0; i < N; ++i)
+        ASSERT_EQ(data.at(i), expected.at(i));
 }
 
 #endif

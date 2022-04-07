@@ -9,6 +9,7 @@
 #include <iostream>
 
 #include "scppl/binary/Binary.hpp"
+#include "scppl/binary/BinaryString.hpp"
 #include "scppl/binary/Concepts.hpp"
 #include "scppl/binary/Utility.hpp"
 
@@ -38,6 +39,10 @@ public:
 
     /// The `Binary` instance of this `BinaryStream` instance.
     using BinaryT = Binary<tEndian, Byte>;
+
+    /// The `BinaryString` instance of this `BinaryStream` instance.
+    template<typename CharT, typename CharTraits = std::char_traits<CharT>>
+    using BinaryStringT = BinaryString<Byte, CharT, CharTraits>;
 
     /// The endian of this `BinaryStream` instance.
     static constexpr auto endian() -> std::endian { return tEndian; }
@@ -70,21 +75,20 @@ public:
     auto operator=(BinaryStream&&) noexcept -> BinaryStream& = default;
 
     /**
-     * @brief Read an amount of bytes from the stream into a `std::array`.
+     * @brief Read an amount of bytes from the stream into a `std::vector`.
      *
      * @note This requires the stream to be an @ref scppl::InputStream.
      *
-     * @tparam N  The amount of bytes to read.
+     * @param length  The amount of bytes to read.
      *
      * @return A `std::array` of `N` `Byte`s.
      */
-    template<std::size_t N>
-    auto readRaw()
-        -> std::array<Byte, N>
+    auto readRaw(std::size_t length)
+        -> std::vector<Byte>
     requires(InputStream<StreamT, Byte, StreamTs...>)
     {
-        std::array<Byte, N> data{};
-        mStream.read(std::ranges::data(data), N);
+        std::vector<Byte> data(length);
+        mStream.read(std::ranges::data(data), length);
 
         return data;
     }
@@ -105,7 +109,27 @@ public:
         -> std::tuple<Ts...>
     requires(InputStream<StreamT, Byte, StreamTs...>)
     {
-        return BinaryT::template unpack<Ts...>(readRaw<lengthOf<Ts...>()>());
+        return BinaryT::template unpack<Ts...>(readRaw(lengthOf<Ts...>()));
+    }
+
+    /**
+     * @brief Read and decode a string from the stream.
+     *
+     * @tparam CharT       The type to use as character.
+     * @tparam CharTraits  The character traits of the character type.
+     *
+     * @param length    The length of the string to read.
+     * @param encoding  The encoding of the string. [`"UTF-8"`]
+     *
+     * @return The decoded string.
+     */
+    template<typename CharT, typename CharTraits = std::char_traits<CharT>>
+    auto readString(std::size_t length, std::string_view encoding = "UTF-8")
+        -> std::basic_string<CharT>
+    requires(InputStream<StreamT, Byte, StreamTs...>)
+    {
+        return BinaryStringT<CharT, CharTraits>::decode(readRaw(length),
+                                                        encoding);
     }
 
     /**
@@ -137,6 +161,23 @@ public:
     requires(OutputStream<StreamT, Byte, StreamTs...>)
     {
         writeRaw(BinaryT::template pack<Ts...>(types...));
+    }
+
+    /**
+     * @brief Encode and write a string to the stream.
+     *
+     * @tparam CharT       The type to use as character.
+     * @tparam CharTraits  The character traits of the character type.
+     *
+     * @param string    The string to encode and write.
+     * @param encoding  The encoding of the string. [`"UTF-8"`]
+     */
+    template<typename CharT, typename CharTraits = std::char_traits<CharT>>
+    void writeString(std::basic_string_view<CharT> string,
+                     std::string_view encoding = "UTF-8")
+    requires(OutputStream<StreamT, Byte, StreamTs...>)
+    {
+        writeRaw(BinaryStringT<CharT, CharTraits>::encode(string, encoding));
     }
 
 private:
