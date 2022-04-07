@@ -2,60 +2,84 @@
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
+#include <algorithm>
 #include <array>
 #include <bit>
-#include <memory>
+#include <cstddef>
+#include <istream>
+#include <ranges>
+#include <string>
 #include <tuple>
-#include <type_traits>
+#include <utility>
 
 #include <gtest/gtest.h>
 
 #include "scppl/binary/BinaryStream.hpp"
 
 #include "Data.hpp"
+#include "Types.hpp"
 #include "Utility.hpp"
 #include "Values.hpp"
 
-// NOLINTBEGIN(cppcoreguidelines-macro-usage): Macros required here
-#define ASSERT_INPUT_VALUES_EQUAL(endian, suffix, ...) \
-    auto [ string, stream ] = toStream(FOR_EACH(DATA_NAME_ ## suffix, \
-                                                __VA_ARGS__)); \
-    assertValuesEqual(scppl::BinaryInputStream<endian>(stream) \
-                          .read<FOR_EACH(TYPE_OF, __VA_ARGS__)>(), \
-                      {__VA_ARGS__})
+template<std::endian tEndian, typename... Ts, std::size_t... Ns>
+requires(sizeof...(Ts) == sizeof...(Ns))
+void readAndAssert(std::tuple<Ts...> expected, ByteArray<Ns>... datas)
+{
+    auto data = combineArrays(datas...);
 
-#define ASSERT_INPUT_VALUES_EQUAL_LE(...) \
-    ASSERT_INPUT_VALUES_EQUAL(std::endian::little, LE, __VA_ARGS__)
-#define ASSERT_INPUT_VALUES_EQUAL_BE(...) \
-    ASSERT_INPUT_VALUES_EQUAL(std::endian::big, BE, __VA_ARGS__)
-// NOLINTEND(cppcoreguidelines-macro-usage)
+    std::string string{};
+    string.resize((Ns + ...));
+
+    std::ranges::copy(std::ranges::begin(data), std::ranges::end(data),
+                      std::ranges::begin(string));
+
+    std::istringstream stringstream(string);
+    stringstream.seekg(0);
+
+    scppl::BinaryInputStream<tEndian> stream(stringstream);
+    auto values = stream.template read<Ts...>();
+
+    assertValuesEqual(values, expected);
+}
+
+constexpr auto readAndAssertLE = [](auto&&... args) -> void {
+    readAndAssert<std::endian::little>(std::forward<decltype(args)>(args)...);
+};
+
+constexpr auto readAndAssertBE = [](auto&&... args) -> void {
+    readAndAssert<std::endian::big>(std::forward<decltype(args)>(args)...);
+};
 
 TEST(BinaryStreamInput, LittleEndianReadType)
 {
-    ASSERT_INPUT_VALUES_EQUAL_LE(A, B, C, D);
+    readAndAssertLE(std::tuple{A, B, C, D},
+                    ADataLE, BDataLE, CDataLE, DDataLE);
 }
 
 TEST(BinaryStreamInput, LittleEndianReadArray)
 {
-    ASSERT_INPUT_VALUES_EQUAL_LE(AArray, BArray, CArray, DArray);
+    readAndAssertLE(std::tuple{AArray, BArray, CArray, DArray},
+                    AArrayDataLE, BArrayDataLE, CArrayDataLE, DArrayDataLE);
 }
 
 TEST(BinaryStreamInput, LittleEndianReadStruct)
 {
-    ASSERT_INPUT_VALUES_EQUAL_LE(AB_CD);
+    readAndAssertLE(std::tuple{AB_CD}, AB_CDDataLE);
 }
 
 TEST(BinaryStreamInput, BigEndianReadType)
 {
-    ASSERT_INPUT_VALUES_EQUAL_BE(A, B, C, D);
+    readAndAssertBE(std::tuple{A, B, C, D},
+                    ADataBE, BDataBE, CDataBE, DDataBE);
 }
 
 TEST(BinaryStreamInput, BigEndianReadArray)
 {
-    ASSERT_INPUT_VALUES_EQUAL_BE(AArray, BArray, CArray, DArray);
+    readAndAssertBE(std::tuple{AArray, BArray, CArray, DArray},
+                    AArrayDataBE, BArrayDataBE, CArrayDataBE, DArrayDataBE);
 }
 
 TEST(BinaryStreamInput, BigEndianReadStruct)
 {
-    ASSERT_INPUT_VALUES_EQUAL_BE(AB_CD);
+    readAndAssertBE(std::tuple{AB_CD}, AB_CDDataBE);
 }

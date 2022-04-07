@@ -2,60 +2,85 @@
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
+#include <algorithm>
 #include <array>
 #include <bit>
+#include <cstddef>
+#include <functional>
+#include <iosfwd>
 #include <memory>
+#include <ranges>
 #include <tuple>
-#include <type_traits>
+#include <utility>
 
 #include <gtest/gtest.h>
 
 #include "scppl/binary/BinaryStream.hpp"
 
 #include "Data.hpp"
+#include "Types.hpp"
 #include "Utility.hpp"
 #include "Values.hpp"
 
-// NOLINTBEGIN(cppcoreguidelines-macro-usage): Macros required here
-#define ASSERT_OUTPUT_DATA_EQUAL(endian, suffix, ...) \
-    std::ostringstream stream{}; \
-    scppl::BinaryOutputStream<endian>(stream).write(__VA_ARGS__); \
-    assertDataEqual(fromStream<scppl::lengthOf<FOR_EACH(TYPE_OF, \
-                                               __VA_ARGS__)>()>(stream), \
-                    FOR_EACH(DATA_NAME_ ## suffix, __VA_ARGS__))
+template<std::endian tEndian, typename... Ts, std::size_t... Ns>
+requires(sizeof...(Ts) == sizeof...(Ns))
+void writeAndAssert(std::tuple<Ts...> values, ByteArray<Ns>... expected)
+{
+    std::ostringstream stringstream{};
 
-#define ASSERT_OUTPUT_DATA_EQUAL_LE(...) \
-    ASSERT_OUTPUT_DATA_EQUAL(std::endian::little, LE, __VA_ARGS__)
-#define ASSERT_OUTPUT_DATA_EQUAL_BE(...) \
-    ASSERT_OUTPUT_DATA_EQUAL(std::endian::big, BE, __VA_ARGS__)
-// NOLINTEND(cppcoreguidelines-macro-usage)
+    scppl::BinaryOutputStream<tEndian> stream(stringstream);
+    std::apply(std::bind_front(&decltype(stream)::template write<Ts...>,
+                               stream),
+                values);
+
+    auto string = stringstream.str();
+
+    ByteArray<(Ns + ...)> data{};
+
+    std::ranges::copy(std::ranges::begin(string), std::ranges::end(string),
+                      std::ranges::begin(data));
+
+    assertDataEqual(data, expected...);
+}
+
+constexpr auto writeAndAssertLE = [](auto&&... args) -> void {
+    writeAndAssert<std::endian::little>(std::forward<decltype(args)>(args)...);
+};
+
+constexpr auto writeAndAssertBE = [](auto&&... args) -> void {
+    writeAndAssert<std::endian::big>(std::forward<decltype(args)>(args)...);
+};
 
 TEST(BinaryStreamOutput, LittleEndianWriteType)
 {
-    ASSERT_OUTPUT_DATA_EQUAL_LE(A, B, C, D);
+    writeAndAssertLE(std::tuple{A, B, C, D},
+                     ADataLE, BDataLE, CDataLE, DDataLE);
 }
 
 TEST(BinaryStreamOutput, LittleEndianWriteArray)
 {
-    ASSERT_OUTPUT_DATA_EQUAL_LE(AArray, BArray, CArray, DArray);
+    writeAndAssertLE(std::tuple{AArray, BArray, CArray, DArray},
+                     AArrayDataLE, BArrayDataLE, CArrayDataLE, DArrayDataLE);
 }
 
 TEST(BinaryStreamOutput, LittleEndianWriteStruct)
 {
-    ASSERT_OUTPUT_DATA_EQUAL_LE(AB_CD);
+    writeAndAssertLE(std::tuple{AB_CD}, AB_CDDataLE);
 }
 
 TEST(BinaryStreamOutput, BigEndianWriteType)
 {
-    ASSERT_OUTPUT_DATA_EQUAL_BE(A, B, C, D);
+    writeAndAssertBE(std::tuple{A, B, C, D},
+                     ADataBE, BDataBE, CDataBE, DDataBE);
 }
 
 TEST(BinaryStreamOutput, BigEndianWriteArray)
 {
-    ASSERT_OUTPUT_DATA_EQUAL_BE(AArray, BArray, CArray, DArray);
+    writeAndAssertBE(std::tuple{AArray, BArray, CArray, DArray},
+                     AArrayDataBE, BArrayDataBE, CArrayDataBE, DArrayDataBE);
 }
 
 TEST(BinaryStreamOutput, BigEndianWriteStruct)
 {
-    ASSERT_OUTPUT_DATA_EQUAL_BE(AB_CD);
+    writeAndAssertBE(std::tuple{AB_CD}, AB_CDDataBE);
 }

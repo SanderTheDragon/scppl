@@ -110,7 +110,7 @@ def main() -> int:
                    },
                    # TODO:  Complete this list
                    extra={
-                       'android': 'linux',
+                       'android': 'unix',
                        'bsd-os': 'bsd',
                        'cygwin': 'unix',
                        'dragonfly': 'bsd',

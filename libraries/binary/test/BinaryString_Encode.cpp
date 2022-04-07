@@ -73,7 +73,6 @@ TEST(BinaryStringEncode, JPChar16)
     {
         encodeAndAssert<char16_t>(JPChar16Text, "Shift-JIS",
                                   JPTextShiftJISData);
-
         encodeAndAssert<char16_t>(JPChar16Text, "UTF-8", JPTextUTF8Data);
         encodeAndAssert<char16_t>(JPChar16Text, "UTF-16", JPTextUTF16Data);
     }
@@ -85,7 +84,6 @@ TEST(BinaryStringEncode, JPChar32)
     {
         encodeAndAssert<char32_t>(JPChar32Text, "Shift-JIS",
                                   JPTextShiftJISData);
-
         encodeAndAssert<char32_t>(JPChar32Text, "UTF-8", JPTextUTF8Data);
         encodeAndAssert<char32_t>(JPChar32Text, "UTF-16", JPTextUTF16Data);
     }

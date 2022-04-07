@@ -12,7 +12,7 @@
  *          slightly wrong or outdated data. Any edits to this file could be
  *          overwritten.
  *
- * @note This file was generated on 2022-03-14 14:01:26.302967.
+ * @note This file was generated on 2022-04-07 11:09:40.353312.
  */
 
 #ifndef SCPPL_OS_PLATFORM_HPP_
@@ -113,7 +113,6 @@ namespace scppl {
 #define SCPPL_OS_NAME "AIX"
 #elif defined(__ANDROID__)
 #define SCPPL_OS_ANDROID
-#define SCPPL_OS_LINUX
 #define SCPPL_OS_UNIX
 #define SCPPL_OS_NAME "Android"
 #elif defined(UTS)
