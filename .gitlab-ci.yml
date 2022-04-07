@@ -30,6 +30,8 @@ download:
   artifacts:
     paths:
       - "$CI_PROJECT_DIR/build"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 
 unit-test:
   stage: test
