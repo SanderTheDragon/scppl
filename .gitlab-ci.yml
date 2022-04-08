@@ -35,22 +35,25 @@ download:
 
 unit-test:
   stage: test
-  dependencies:
-    - "build"
+  needs:
+    - job: build
+      artifacts: true
   script:
     - cd $CI_PROJECT_DIR/build
     - ctest --output-junit $CI_PROJECT_DIR/report.xml
   artifacts:
     reports:
       junit: "report.xml"
+    paths:
+      - "$CI_PROJECT_DIR/build"
 
 coverage:
   stage: test
-  dependencies:
-    - "build"
+  needs:
+    - job: unit-test
+      artifacts: true
   script:
     - cd $CI_PROJECT_DIR/build
-    - ctest
     - gcovr -r $CI_PROJECT_DIR -x $CI_PROJECT_DIR/coverage.xml --exclude-lines-by-pattern "(\s+throw .+)|(.*GCOVR_EXCL_LINE.*)" --exclude-throw-branches --print-summary
   coverage: '/lines: \d+\.\d+%/'
   artifacts:
@@ -61,28 +64,35 @@ coverage:
 
 clang-tidy:
   stage: test
-  dependencies:
-    - "download"
+  needs:
+    - job: download
+      artifacts: true
   script:
     - cd $CI_PROJECT_DIR
     - run-clang-tidy-14 -quiet -p $CI_PROJECT_DIR/build
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      when: manual
+      allow_failure: true
 
 iwyu:
   stage: test
-  dependencies:
-    - "download"
+  needs:
+    - job: download
+      artifacts: true
   script:
     - cd $CI_PROJECT_DIR
     - iwyu_tool -o clang -p $CI_PROJECT_DIR/build -- -Xiwyu --mapping_file=$CI_PROJECT_DIR/cmake/tools/googletest.imp -I/usr/lib/clang/14/include
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      when: manual
+      allow_failure: true
 
 memory:
   stage: test
-  dependencies:
-    - "download"
+  needs:
+    - job: download
+      artifacts: true
   script:
     - cd $CI_PROJECT_DIR/build
     - valgrind --leak-check=full --show-leak-kinds=all -s ctest
@@ -91,6 +101,7 @@ memory:
 
 reuse:
   stage: test
+  needs: []
   script:
     - cd $CI_PROJECT_DIR
     - reuse lint
@@ -99,10 +110,9 @@ reuse:
 
 pages:
   stage: deploy
-  dependencies:
-    - "build"
-  before_script:
-    - pip install -r $CI_PROJECT_DIR/requirements.txt
+  needs:
+    - job: build
+      artifacts: true
   script:
     - cd $CI_PROJECT_DIR/build
     - make Documentation BinaryDocumentation OSDocumentation
