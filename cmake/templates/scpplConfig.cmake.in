@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
 
-set(scppl_SUPPORTED_COMPONENTS Binary)
+set(scppl_SUPPORTED_COMPONENTS Binary OS)
 
 foreach(COMPONENT ${scppl_FIND_COMPONENTS})
     if (NOT ";${scppl_SUPPORTED_COMPONENTS};" MATCHES ";${COMPONENT};")
@@ -21,10 +21,16 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/dependencies")
 # Find dependencies for Binary
 get_target_property(Binary_DEFINITIONS scppl::Binary INTERFACE_COMPILE_DEFINITIONS)
 
-if(SCPPL_CONFIG_BINARY_USE_ICU IN_LIST Binary_DEFINITIONS)
-    find_dependency(ICU COMPONENTS uc)
-endif()
+foreach(DEPENDENCY IN LISTS Binary_DEFINITIONS)
+    string(REPLACE "=" ";" PARTS ${DEPENDENCY})
+    list(GET PARTS 0 VARIABLE)
+    list(GET PARTS 1 VALUE)
 
-if(SCPPL_CONFIG_BINARY_USE_PFR IN_LIST Binary_DEFINITIONS)
-    find_dependency(BoostPFR)
-endif()
+    if(${VALUE})
+        if(VARIABLE STREQUAL "SCPPL_CONFIG_BINARY_USE_ICU")
+            find_dependency(ICU COMPONENTS uc)
+        elseif(VARIABLE STREQUAL "SCPPL_CONFIG_BINARY_USE_PFR")
+            find_dependency(BoostPFR)
+        endif()
+    endif()
+endforeach()
