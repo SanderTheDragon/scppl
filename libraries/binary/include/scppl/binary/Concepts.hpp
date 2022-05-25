@@ -87,6 +87,21 @@ concept OutputStream = requires(StreamT<ByteT, Ts...> stream, ByteT* data)
     stream.write(data, std::declval<std::size_t>());
 };
 
+/**
+ * @brief Concept for an input/output stream type.
+ *
+ * @details A type is an input/output stream if it is both an `InputStream` and
+ *          `OutputStream`.
+ *
+ * @tparam StreamT  The stream type to test.
+ * @tparam ByteT    The underlying type of the stream.
+ * @tparam Ts       Other stream parameters.
+ */
+template<template<typename, typename...> typename StreamT,
+         typename ByteT, typename... Ts>
+concept InputOutputStream = InputStream<StreamT, ByteT, Ts...>
+                            && OutputStream<StreamT, ByteT, Ts...>;
+
 }
 
 #endif

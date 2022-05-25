@@ -13,7 +13,6 @@
 #include <gtest/gtest.h>
 
 #include "Types.hpp"
-#include "Utility.hpp"
 
 // Binary_*
 constexpr A_t A = 0x01;
