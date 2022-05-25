@@ -8,7 +8,8 @@ cmake_minimum_required(VERSION 3.12)
 find_package(GTest REQUIRED)
 
 
-set(TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/BinaryStream_Input.cpp"
+set(TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/BinaryStream_Functions.cpp"
+                 "${CMAKE_CURRENT_SOURCE_DIR}/BinaryStream_Input.cpp"
                  "${CMAKE_CURRENT_SOURCE_DIR}/BinaryStream_Output.cpp"
                  "${CMAKE_CURRENT_SOURCE_DIR}/BinaryString_Decode.cpp"
                  "${CMAKE_CURRENT_SOURCE_DIR}/BinaryString_Encode.cpp"
