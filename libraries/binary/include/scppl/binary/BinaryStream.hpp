@@ -7,6 +7,8 @@
 
 #include <bit>
 #include <iostream>
+#include <ostream>
+#include <tuple>
 #include <type_traits>
 
 #include "scppl/binary/Binary.hpp"
@@ -75,7 +77,8 @@ public:
     BinaryStream(Stream& stream) :
         mStream(stream)
     {
-
+        // Synchronize the positions
+        synchronizeOutputToInput();
     }
 
     /// Default copy constructor.
@@ -132,8 +135,8 @@ public:
      */
     auto tell()
         -> std::size_t
-    requires(isInputStream || isOutputStream &&
-             (!isInputOutputStream || synchronized()))
+    requires((isInputStream || isOutputStream) &&
+             !(isInputOutputStream && !synchronized()))
     {
         if constexpr(InputStream<StreamT, Byte, StreamTs...>)
         {
@@ -146,18 +149,30 @@ public:
     }
 
     /**
+     * @brief Whether the stream is at the end.
+     *
+     * @return `true` if the stream is at the end.
+     */
+    auto eof()
+        -> bool
+    {
+        return mStream.eof();
+    }
+
+    /**
      * @brief Move the read position of this stream.
      *
      * @note This requires the stream to be an @ref scppl::InputStream.
      *
-     * @param offset     The amount of bytes to seek from `direction`.
-     * @param direction  The direction to search from.
+     * @param offset     The amount of bytes to seek from `direction`. [`0`]
+     * @param direction  The direction to search from. [`std::ios::cur`]
      */
     void seekInput(std::size_t offset = 0,
                    std::ios::seekdir direction = std::ios::cur)
     requires(isInputStream)
     {
-        mStream.seekg(offset, direction);
+        _seekInput(offset, direction);
+        synchronizeOutputToInput();
     }
 
     /**
@@ -165,33 +180,46 @@ public:
      *
      * @note This requires the stream to be an @ref scppl::OutputStream.
      *
-     * @param offset     The amount of bytes to seek from `direction`.
-     * @param direction  The direction to search from.
+     * @param offset     The amount of bytes to seek from `direction`. [`0`]
+     * @param direction  The direction to search from. [`std::ios::cur`]
      */
     void seekOutput(std::size_t offset = 0,
                     std::ios::seekdir direction = std::ios::cur)
     requires(isOutputStream)
     {
-        mStream.seekp(offset, direction);
+        _seekOutput(offset, direction);
+        synchronizeInputToOutput();
     }
 
     /**
      * @brief Move the read position and/or write position of this stream.
      *
-     * @param offset     The amount of bytes to seek from `direction`.
-     * @param direction  The direction to search from.
+     * @warning If the stream is an @ref scppl::InputOutputStream and it is
+     *          synchronized, then the new read position is used as write
+     *          position.
+     *
+     * @param offset     The amount of bytes to seek from `direction`. [`0`]
+     * @param direction  The direction to search from. [`std::ios::cur`]
      */
     void seek(std::size_t offset = 0,
               std::ios::seekdir direction = std::ios::cur)
     {
-        if constexpr(InputStream<StreamT, Byte, StreamTs...>)
+        if constexpr(isInputOutputStream && synchronized())
         {
-            seekInput(offset, direction);
+            _seekInput(offset, direction);
+            _seekOutput(tellInput());
         }
-
-        if constexpr(OutputStream<StreamT, Byte, StreamTs...>)
+        else
         {
-            seekOutput(offset, direction);
+            if constexpr(isInputStream)
+            {
+                _seekInput(offset, direction);
+            }
+
+            if constexpr(isOutputStream)
+            {
+                _seekOutput(offset, direction);
+            }
         }
     }
 
@@ -199,7 +227,7 @@ public:
      * @brief Move the read position and/or write position of this stream from
      *        the begin.
      *
-     * @param offset     The amount of bytes to seek from the begin.
+     * @param offset     The amount of bytes to seek from the begin. [`0`]
      */
     void toBegin(std::size_t offset = 0)
     {
@@ -210,11 +238,33 @@ public:
      * @brief Move the read position and/or write position of this stream from
      *        the end.
      *
-     * @param offset     The amount of bytes to seek from the end.
+     * @param offset     The amount of bytes to seek from the end. [`0`]
      */
     void toEnd(std::size_t offset = 0)
     {
         seek(offset, std::ios::end);
+    }
+
+    /**
+     * @brief Move the read position to the current write position.
+     */
+    void synchronizeInputToOutput()
+    {
+        if constexpr(isInputOutputStream && synchronized())
+        {
+            _seekInput(tellOutput());
+        }
+    }
+
+    /**
+     * @brief Move the write position to the current read position.
+     */
+    void synchronizeOutputToInput()
+    {
+        if constexpr(isInputOutputStream && synchronized())
+        {
+            _seekOutput(tellInput());
+        }
     }
 
     /**
@@ -233,8 +283,7 @@ public:
         std::vector<Byte> data(length);
         mStream.read(std::ranges::data(data), length);
 
-        if constexpr(OutputStream<StreamT, Byte, StreamTs...> && synchronized())
-            seekOutput(tellInput());
+        synchronizeOutputToInput();
 
         return data;
     }
@@ -256,6 +305,25 @@ public:
     requires(isInputStream)
     {
         return BinaryT::template unpack<Ts...>(readRaw(lengthOf<Ts...>()));
+    }
+
+    /**
+     * @brief Read a single type from a stream.
+     *
+     * @note This requires the stream to be an @ref scppl::InputStream.
+     *
+     * @sa scppl::Binary::fromBytes()
+     *
+     * @tparam T  The type to read from the stream, must be `Unpackable`.
+     *
+     * @return The read value.
+     */
+    template<Unpackable T>
+    auto readSingle()
+        -> T
+    requires(isInputStream)
+    {
+        return BinaryT::template fromBytes<T>(readRaw(lengthOf<T>()));
     }
 
     /**
@@ -290,8 +358,7 @@ public:
     {
         mStream.write(std::ranges::data(data), std::ranges::size(data));
 
-        if constexpr(InputStream<StreamT, Byte, StreamTs...> && synchronized())
-            seekInput(tellOutput());
+        synchronizeInputToOutput();
     }
 
     /**
@@ -331,6 +398,22 @@ public:
 
 private:
     Stream& mStream{};
+
+    /// Actual implementation for `seekInput`.
+    void _seekInput(std::size_t offset = 0,
+                    std::ios::seekdir direction = std::ios::beg)
+    requires(isInputStream)
+    {
+        mStream.seekg(offset, direction);
+    }
+
+    /// Actual implementation for `seekOutput`.
+    void _seekOutput(std::size_t offset = 0,
+                     std::ios::seekdir direction = std::ios::beg)
+    requires(isOutputStream)
+    {
+        mStream.seekp(offset, direction);
+    }
 };
 
 /// An alias for `BinaryStream`, defaulting `StreamT` to `std::basic_istream`.
@@ -346,6 +429,27 @@ template<std::endian tEndian = std::endian::native, bool tSynchronized = true,
          typename ByteT = char, typename... StreamTs>
 using BinaryOutputStream = BinaryStream<tEndian, tSynchronized,
                                         StreamT, ByteT, StreamTs...>;
+
+/// An alias for `BinaryStream`, defaulting `tSynchronized` to `false`.
+template<std::endian tEndian = std::endian::native,
+         template<typename, typename...> typename StreamT = std::basic_iostream,
+         typename ByteT = char, typename... StreamTs>
+using UnsynchronizedBinaryStream =
+    BinaryStream<tEndian, false, StreamT, ByteT, StreamTs...>;
+
+/// An alias for `BinaryInputStream`, defaulting `tSynchronized` to `false`.
+template<std::endian tEndian = std::endian::native,
+         template<typename, typename...> typename StreamT = std::basic_istream,
+         typename ByteT = char, typename... StreamTs>
+using UnsynchronizedBinaryInputStream =
+    BinaryInputStream<tEndian, false, StreamT, ByteT, StreamTs...>;
+
+/// An alias for `BinaryOutputStream`, defaulting `tSynchronized` to `false`.
+template<std::endian tEndian = std::endian::native,
+         template<typename, typename...> typename StreamT = std::basic_ostream,
+         typename ByteT = char, typename... StreamTs>
+using UnsynchronizedBinaryOutputStream =
+    BinaryOutputStream<tEndian, false, StreamT, ByteT, StreamTs...>;
 
 }
 
