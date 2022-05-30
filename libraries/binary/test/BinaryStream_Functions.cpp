@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include <algorithm>
-#include <bit>
 #include <cstddef>
 #include <ranges>
 #include <sstream>
@@ -48,27 +47,68 @@ void assertAllEqual(T1 value, Ts... values)
     (assertTwoEqual(value, values), ...);
 }
 
+template<typename StringstreamT, typename StreamT>
+void assertInput(StringstreamT& stringstream, StreamT& stream,
+                 std::size_t position)
+{
+    if constexpr(!StreamT::isOutputStream || StreamT::synchronized())
+    {
+        assertAllEqual(stringstream.tellg(), stream.tellInput(), stream.tell(),
+                       position);
+    }
+    else
+    {
+        assertAllEqual(stringstream.tellg(), stream.tellInput(),
+                       position);
+    }
+}
+
+template<typename StringstreamT, typename StreamT>
+void assertOutput(StringstreamT& stringstream, StreamT& stream,
+                  std::size_t position)
+{
+    if constexpr(!StreamT::isInputStream || StreamT::synchronized())
+    {
+        assertAllEqual(stringstream.tellp(), stream.tellOutput(), stream.tell(),
+                       position);
+    }
+    else
+    {
+        assertAllEqual(stringstream.tellp(), stream.tellOutput(),
+                       position);
+    }
+}
+
+template<typename StringstreamT, typename StreamT>
+void assertInputOutput(StringstreamT& stringstream, StreamT& stream,
+                       std::size_t position)
+{
+    assertAllEqual(stringstream.tellg(), stringstream.tellp(),
+                   stream.tellInput(), stream.tellOutput(), stream.tell(),
+                   position);
+}
+
 TEST(BinaryStreamFunctions, InputBeginEndSeek)
 {
     auto stringstream = toStream(DDataLE, DDataLE);
     scppl::BinaryStream stream(stringstream);
 
-    assertAllEqual(stringstream.tellg(), stream.tellInput(), 0);
+    assertInput(stringstream, stream, 0);
 
     stream.read<D_t, D_t>();
-    assertAllEqual(stringstream.tellg(), stream.tellInput(), 16);
+    assertInput(stringstream, stream, 16);
 
     stream.toBegin();
-    assertAllEqual(stringstream.tellg(), stream.tellInput(), 0);
+    assertInput(stringstream, stream, 0);
 
     stream.toEnd();
-    assertAllEqual(stringstream.tellg(), stream.tellInput(), 16);
+    assertInput(stringstream, stream, 16);
 
     stream.toBegin(8);
-    assertAllEqual(stringstream.tellg(), stream.tellInput(), 8);
+    assertInput(stringstream, stream, 8);
 
     stream.toEnd(-8);
-    assertAllEqual(stringstream.tellg(), stream.tellInput(), 8);
+    assertInput(stringstream, stream, 8);
 }
 
 TEST(BinaryStreamFunctions, OutputBeginEndSeek)
@@ -76,22 +116,22 @@ TEST(BinaryStreamFunctions, OutputBeginEndSeek)
     std::ostringstream stringstream{};
     scppl::BinaryStream stream(stringstream);
 
-    assertAllEqual(stringstream.tellp(), stream.tellOutput(), 0);
+    assertOutput(stringstream, stream, 0);
 
     stream.write(D, D);
-    assertAllEqual(stringstream.tellp(), stream.tellOutput(), 16);
+    assertOutput(stringstream, stream, 16);
 
     stream.toBegin();
-    assertAllEqual(stringstream.tellp(), stream.tellOutput(), 0);
+    assertOutput(stringstream, stream, 0);
 
     stream.toEnd();
-    assertAllEqual(stringstream.tellp(), stream.tellOutput(), 16);
+    assertOutput(stringstream, stream, 16);
 
     stream.toBegin(8);
-    assertAllEqual(stringstream.tellp(), stream.tellOutput(), 8);
+    assertOutput(stringstream, stream, 8);
 
     stream.toEnd(-8);
-    assertAllEqual(stringstream.tellp(), stream.tellOutput(), 8);
+    assertOutput(stringstream, stream, 8);
 }
 
 TEST(BinaryStreamFunctions, InputOutputBeginEndSeek)
@@ -99,67 +139,73 @@ TEST(BinaryStreamFunctions, InputOutputBeginEndSeek)
     std::stringstream stringstream{};
     scppl::BinaryStream stream(stringstream);
 
-    assertAllEqual(stringstream.tellg(), stringstream.tellp(),
-                   stream.tellInput(), stream.tellOutput(), stream.tell(), 0);
+    assertInputOutput(stringstream, stream, 0);
 
     stream.write(D, D);
-    assertAllEqual(stringstream.tellg(), stringstream.tellp(),
-                   stream.tellInput(), stream.tellOutput(), stream.tell(), 16);
+    assertInputOutput(stringstream, stream, 16);
 
     stream.toBegin();
-    assertAllEqual(stringstream.tellg(), stringstream.tellp(),
-                   stream.tellInput(), stream.tellOutput(), stream.tell(), 0);
+    assertInputOutput(stringstream, stream, 0);
 
     stream.read<D_t, D_t>();
-    assertAllEqual(stringstream.tellg(), stringstream.tellp(),
-                   stream.tellInput(), stream.tellOutput(), stream.tell(), 16);
+    assertInputOutput(stringstream, stream, 16);
 
     stream.toBegin();
-    assertAllEqual(stringstream.tellg(), stringstream.tellp(),
-                   stream.tellInput(), stream.tellOutput(), stream.tell(), 0);
+    assertInputOutput(stringstream, stream, 0);
 
     stream.toEnd();
-    assertAllEqual(stringstream.tellg(), stringstream.tellp(),
-                   stream.tellInput(), stream.tellOutput(), stream.tell(), 16);
+    assertInputOutput(stringstream, stream, 16);
 
     stream.toBegin(8);
-    assertAllEqual(stringstream.tellg(), stringstream.tellp(),
-                   stream.tellInput(), stream.tellOutput(), stream.tell(), 8);
+    assertInputOutput(stringstream, stream, 8);
 
     stream.toEnd(-8);
-    assertAllEqual(stringstream.tellg(), stringstream.tellp(),
-                   stream.tellInput(), stream.tellOutput(), stream.tell(), 8);
+    assertInputOutput(stringstream, stream, 8);
+
+    stream.seekInput(4);
+    assertInputOutput(stringstream, stream, 12);
+
+    stream.seekOutput(4);
+    assertInputOutput(stringstream, stream, 16);
 }
 
 TEST(BinaryStreamFunctions, UnsynchronizedInputOutputBeginEndSeek)
 {
     std::stringstream stringstream{};
-    scppl::BinaryStream<std::endian::native, false> stream(stringstream);
+    scppl::UnsynchronizedBinaryStream<> stream(stringstream);
 
-    assertAllEqual(stringstream.tellg(), stream.tellInput(), 0);
-    assertAllEqual(stringstream.tellp(), stream.tellOutput(), 0);
+    assertInput(stringstream, stream, 0);
+    assertOutput(stringstream, stream, 0);
 
     stream.write(D, D);
-    assertAllEqual(stringstream.tellg(), stream.tellInput(), 0);
-    assertAllEqual(stringstream.tellp(), stream.tellOutput(), 16);
+    assertInput(stringstream, stream, 0);
+    assertOutput(stringstream, stream, 16);
 
     stream.toBegin();
-    assertAllEqual(stringstream.tellg(), stream.tellInput(), 0);
-    assertAllEqual(stringstream.tellp(), stream.tellOutput(), 0);
+    assertInput(stringstream, stream, 0);
+    assertOutput(stringstream, stream, 0);
 
     stream.read<D_t, D_t>();
-    assertAllEqual(stringstream.tellg(), stream.tellInput(), 16);
-    assertAllEqual(stringstream.tellp(), stream.tellOutput(), 0);
+    assertInput(stringstream, stream, 16);
+    assertOutput(stringstream, stream, 0);
 
     stream.toEnd();
-    assertAllEqual(stringstream.tellg(), stream.tellInput(), 16);
-    assertAllEqual(stringstream.tellp(), stream.tellOutput(), 16);
+    assertInput(stringstream, stream, 16);
+    assertOutput(stringstream, stream, 16);
 
     stream.toBegin(8);
-    assertAllEqual(stringstream.tellg(), stream.tellInput(), 8);
-    assertAllEqual(stringstream.tellp(), stream.tellOutput(), 8);
+    assertInput(stringstream, stream, 8);
+    assertOutput(stringstream, stream, 8);
 
     stream.read<D_t>();
-    assertAllEqual(stringstream.tellg(), stream.tellInput(), 16);
-    assertAllEqual(stringstream.tellp(), stream.tellOutput(), 8);
+    assertInput(stringstream, stream, 16);
+    assertOutput(stringstream, stream, 8);
+
+    stream.seekInput(-8);
+    assertInput(stringstream, stream, 8);
+    assertOutput(stringstream, stream, 8);
+
+    stream.seekOutput(8);
+    assertInput(stringstream, stream, 8);
+    assertOutput(stringstream, stream, 16);
 }
