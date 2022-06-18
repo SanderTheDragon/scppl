@@ -12,6 +12,8 @@
 #include <gtest/gtest.h>
 
 #include "scppl/binary/BinaryStream.hpp"
+#include "scppl/binary/BinaryInputStream.hpp"
+#include "scppl/binary/BinaryOutputStream.hpp"
 
 #include "Data.hpp"
 #include "Types.hpp"
@@ -51,32 +53,16 @@ template<typename StringstreamT, typename StreamT>
 void assertInput(StringstreamT& stringstream, StreamT& stream,
                  std::size_t position)
 {
-    if constexpr(!StreamT::isOutputStream || StreamT::synchronized())
-    {
-        assertAllEqual(stringstream.tellg(), stream.tellInput(), stream.tell(),
-                       position);
-    }
-    else
-    {
-        assertAllEqual(stringstream.tellg(), stream.tellInput(),
-                       position);
-    }
+    assertAllEqual(stringstream.tellg(), stream.tellInput(),
+                   position);
 }
 
 template<typename StringstreamT, typename StreamT>
 void assertOutput(StringstreamT& stringstream, StreamT& stream,
                   std::size_t position)
 {
-    if constexpr(!StreamT::isInputStream || StreamT::synchronized())
-    {
-        assertAllEqual(stringstream.tellp(), stream.tellOutput(), stream.tell(),
-                       position);
-    }
-    else
-    {
-        assertAllEqual(stringstream.tellp(), stream.tellOutput(),
-                       position);
-    }
+    assertAllEqual(stringstream.tellp(), stream.tellOutput(),
+                   position);
 }
 
 template<typename StringstreamT, typename StreamT>
@@ -91,46 +77,46 @@ void assertInputOutput(StringstreamT& stringstream, StreamT& stream,
 TEST(BinaryStreamFunctions, InputBeginEndSeek)
 {
     auto stringstream = toStream(DDataLE, DDataLE);
-    scppl::BinaryStream stream(stringstream);
+    scppl::BinaryInputStream stream(stringstream);
 
     assertInput(stringstream, stream, 0);
 
     stream.read<D_t, D_t>();
     assertInput(stringstream, stream, 16);
 
-    stream.toBegin();
+    stream.toBeginInput();
     assertInput(stringstream, stream, 0);
 
-    stream.toEnd();
+    stream.toEndInput();
     assertInput(stringstream, stream, 16);
 
-    stream.toBegin(8);
+    stream.toBeginInput(8);
     assertInput(stringstream, stream, 8);
 
-    stream.toEnd(-8);
+    stream.toEndInput(-8);
     assertInput(stringstream, stream, 8);
 }
 
 TEST(BinaryStreamFunctions, OutputBeginEndSeek)
 {
     std::ostringstream stringstream{};
-    scppl::BinaryStream stream(stringstream);
+    scppl::BinaryOutputStream stream(stringstream);
 
     assertOutput(stringstream, stream, 0);
 
     stream.write(D, D);
     assertOutput(stringstream, stream, 16);
 
-    stream.toBegin();
+    stream.toBeginOutput();
     assertOutput(stringstream, stream, 0);
 
-    stream.toEnd();
+    stream.toEndOutput();
     assertOutput(stringstream, stream, 16);
 
-    stream.toBegin(8);
+    stream.toBeginOutput(8);
     assertOutput(stringstream, stream, 8);
 
-    stream.toEnd(-8);
+    stream.toEndOutput(-8);
     assertOutput(stringstream, stream, 8);
 }
 
@@ -162,10 +148,10 @@ TEST(BinaryStreamFunctions, InputOutputBeginEndSeek)
     stream.toEnd(-8);
     assertInputOutput(stringstream, stream, 8);
 
-    stream.seekInput(4);
-    assertInputOutput(stringstream, stream, 12);
+    stream.seekInput(8);
+    assertInputOutput(stringstream, stream, 8);
 
-    stream.seekOutput(4);
+    stream.seekOutput(8, std::ios::cur);
     assertInputOutput(stringstream, stream, 16);
 }
 
@@ -201,11 +187,11 @@ TEST(BinaryStreamFunctions, UnsynchronizedInputOutputBeginEndSeek)
     assertInput(stringstream, stream, 16);
     assertOutput(stringstream, stream, 8);
 
-    stream.seekInput(-8);
+    stream.seekInput(-8, std::ios::cur);
     assertInput(stringstream, stream, 8);
     assertOutput(stringstream, stream, 8);
 
-    stream.seekOutput(8);
+    stream.seekOutput(16);
     assertInput(stringstream, stream, 8);
     assertOutput(stringstream, stream, 16);
 }
