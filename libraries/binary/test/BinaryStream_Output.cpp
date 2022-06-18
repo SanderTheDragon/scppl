@@ -16,7 +16,7 @@
 
 #include <gtest/gtest.h>
 
-#include "scppl/binary/BinaryStream.hpp"
+#include "scppl/binary/BinaryOutputStream.hpp"
 
 #include "Data.hpp"
 #include "Types.hpp"

@@ -120,7 +120,8 @@ public:
     void seekInput(std::size_t offset = 0,
                    std::ios::seekdir direction = std::ios::beg)
     {
-        mStream.seekg(offset, direction);
+        _seekInput(offset, direction);
+        readPositionChanged();
     }
 
     /**
@@ -168,6 +169,7 @@ public:
     {
         std::vector<Byte> data(length);
         mStream.read(std::ranges::data(data), length);
+        readPositionChanged();
 
         return data;
     }
@@ -226,6 +228,19 @@ public:
     {
         return BinaryStringT<CharT, CharTraits>::decode(readRaw(length),
                                                         encoding);
+    }
+
+protected:
+    /// Actual implementation for `seekInput`.
+    void _seekInput(std::size_t offset = 0,
+                    std::ios::seekdir direction = std::ios::beg)
+    {
+        mStream.seekg(offset, direction);
+    }
+
+    virtual void readPositionChanged()
+    {
+        //
     }
 
 private:

@@ -164,11 +164,29 @@ public:
      * @brief Move the read position and write position of this stream from
      *        the current position.
      *
-     * @param offset     The amount of bytes to seek from the current position. [`0`]
+     * @param offset     The amount of bytes to seek from the current position.
+     *                  [`0`]
      */
     void skip(std::size_t offset = 0)
     {
         seek(offset, std::ios::cur);
+    }
+
+private:
+    void readPositionChanged() override
+    {
+        if constexpr(synchronized())
+        {
+            OutputStreamT::_seekOutput(InputStreamT::tellInput());
+        }
+    }
+
+    void writePositionChanged() override
+    {
+        if constexpr(synchronized())
+        {
+            InputStreamT::_seekInput(OutputStreamT::tellOutput());
+        }
     }
 };
 

@@ -70,7 +70,7 @@ public:
     BinaryOutputStream(BinaryOutputStream&&) noexcept = default;
 
     /// Default destructor.
-    ~BinaryOutputStream() noexcept = default;
+    virtual ~BinaryOutputStream() noexcept = default;
 
     /// Default copy assignment operator.
     auto operator=(BinaryOutputStream const&) -> BinaryOutputStream& = default;
@@ -120,7 +120,8 @@ public:
     void seekOutput(std::size_t offset = 0,
                     std::ios::seekdir direction = std::ios::beg)
     {
-        mStream.seekp(offset, direction);
+        _seekOutput(offset, direction);
+        writePositionChanged();
     }
 
     /**
@@ -164,6 +165,7 @@ public:
     void writeRaw(RangeOf<Byte> auto data)
     {
         mStream.write(std::ranges::data(data), std::ranges::size(data));
+        writePositionChanged();
     }
 
     /**
@@ -197,6 +199,19 @@ public:
                      std::string_view encoding = "UTF-8")
     {
         writeRaw(BinaryStringT<CharT, CharTraits>::encode(string, encoding));
+    }
+
+protected:
+    /// Actual implementation for `seekOutput`.
+    void _seekOutput(std::size_t offset = 0,
+                     std::ios::seekdir direction = std::ios::beg)
+    {
+        mStream.seekp(offset, direction);
+    }
+
+    virtual void writePositionChanged()
+    {
+        //
     }
 
 private:
